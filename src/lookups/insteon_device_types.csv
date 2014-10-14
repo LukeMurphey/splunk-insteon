@@ -1,0 +1,71 @@
+category,subcategory,category_name,description,product_key
+00,04,Generalized Controllers,ControLinc [2430],
+00,05,Generalized Controllers,RemoteLinc [2440],34
+00,06,Generalized Controllers,Icon Tabletop Controller [2830],
+00,09,Generalized Controllers,SignaLinc RF Signal Enhancer [2442],
+00,0A,Generalized Controllers,Balboa Instruments Poolux LCD Controller,7
+00,0B,Generalized Controllers,Access Point [2443],22
+00,0C,Generalized Controllers,IES Color Touchscreen,28
+01,00,Dimmable Lighting Control,LampLinc V2 [2456D3],
+01,01,Dimmable Lighting Control,SwitchLinc V2 Dimmer 600W [2476D],
+01,02,Dimmable Lighting Control,In-LineLinc Dimmer [2475D],
+01,03,Dimmable Lighting Control,Icon Switch Dimmer [2876D],
+01,04,Dimmable Lighting Control,SwitchLinc V2 Dimmer 1000W [2476DH],
+01,06,Dimmable Lighting Control,LampLinc 2-Pin [2456D2],
+01,07,Dimmable Lighting Control,Icon LampLinc V2 2-Pin [2456D2],
+01,09,Dimmable Lighting Control,KeypadLinc Dimmer [2486D],37
+01,0A,Dimmable Lighting Control,Icon In-Wall Controller [2886D],
+01,0D,Dimmable Lighting Control,SocketLinc [2454D],1e
+01,13,Dimmable Lighting Control,Icon SwitchLinc Dimmer for Lixar/Bell Canada [2676D-B],32
+01,17,Dimmable Lighting Control,ToggleLinc Dimmer [2466D],
+02,09,ApplianceLinc [2456S3],
+02,0a,SwitchLinc Relay [2476S],
+02,0b,Icon On Off Switch [2876S],
+02,0c,Icon Appliance Adapter [2856S3],
+02,0d,ToggleLinc Relay [2466S],
+02,0e,SwitchLinc Relay Countdown Timer [2476ST],
+02,10,In-LineLinc Relay [2475D],1b
+02,13,Icon SwitchLinc Relay for Lixar/Bell Canada [2676R-B],33
+03,01,PowerLinc Serial [2414S],
+03,02,PowerLinc USB [2414U],
+03,03,Icon PowerLinc Serial [2814 S],
+03,04,Icon PowerLinc USB [2814U],
+03,05,Smartlabs Power Line Modem Serial [2412S],c
+04,00,Compacta EZRain Sprinkler Controller,1
+05,00,Broan SMSC080 Exhaust Fan,
+05,01,Compacta EZTherm,2
+05,02,Broan SMSC110 Exhaust Fan,
+05,03,Venstar RF Thermostat Module,1f
+05,04,Compacta EZThermx Thermostat,24
+06,00,Compacta EZPool,3
+07,00,IOLinc,1a
+07,01,Compacta EZSns1W Sensor Interface Module,4
+07,02,Compacta EZIO8T I/O Module,12
+07,03,Compacta EZIO2X4 #5010D INSTEON/X10 I/O Module for Dakota Alerts Products,5
+07,04,Compacta EZIO8SA I/O Module,13
+07,05,Compacta EZSnsRx RF #5010E Receiver Interface Module,14
+07,06,Compacta EZISnsRf Sensor Interface Module,15
+08,,Home Entertainment,
+09,00,Compacta EZEnergy,6
+09,01,OnSitePro Leak Detector,20
+09,02,OnSitePro Control Valve,21
+09,03,Energy Inc. TED Measuring Transmitting Unit (MTU),25
+09,04,Energy Inc. TED Receiving Display Unit (RDU),26
+0a,,Built-In Appliance Control,
+0b,,Plumbing,
+0c,,Communication,
+0d,,Computer Control,
+0e,00,Somfy Drape Controller RF Bridge,b
+0f,00,Weiland Doors Central Drive and Controller,e
+0f,01,Weiland Doors Secondary Central Drive,f
+0f,02,Weiland Doors Assist Drive,10
+0f,03,Weiland Doors Elevation Drive,11
+10,00,First Alert ONELink RF to INSTEON Bridge,27
+11,,Surveillance,
+12,,Automotive,
+13,,Pet Care,
+14,,Toys,
+15,,Timekeeping,
+16,,Holiday,
+17,,Reserved,
+18,,Unassigned,

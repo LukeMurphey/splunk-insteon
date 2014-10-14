@@ -1,0 +1,6 @@
+extended,broadcast,all_link,command,category,subcategory,cmd1,cmd2
+0,0,0,Light On,1,*,11,*
+0,0,0,Light On,2,*,11,*
+0,0,0,I/O Get Sensor Value,7,*,4a,*
+0,0,0,Light Status Request,1,*,19,*
+0,0,0,Light Status Request,2,*,19,*

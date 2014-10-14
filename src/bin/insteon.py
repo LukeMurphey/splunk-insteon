@@ -113,7 +113,7 @@ class InsteonInput(ModularInput):
             
             logger.debug("Processed an Insteon message")
         except:
-            logger.exception("Error when attempting to process Insteon message")
+            logger.exception("Error when attempting to process an Insteon message")
     
     def run(self, stanza, cleaned_params, input_config):
         
@@ -134,13 +134,14 @@ class InsteonInput(ModularInput):
             
             try:
                 self.plm = InsteonPLM(TCP(plm_host, plm_port))
+                self.plm.setLogger(logger)
                 self.plm.start()
                 
                 self.plm.onReceivedInsteon(self.insteon_received)
                 
-                logger.info("Configured a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
+                logger.info("Established a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             except:
-                logger.exception("Exception while attempting to start a PLM connection")
+                logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
 if __name__ == '__main__':
     logger.debug("Starting the input")
