@@ -1,7 +1,7 @@
 <form>
   <label>Devices Lacking Identification</label>
-  <fieldset submitButton="true">
-    <input type="time" token="datetime" autoRun="true">
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="datetime">
       <label></label>
       <default>
         <earliest>-7d</earliest>
