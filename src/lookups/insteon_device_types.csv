@@ -1,71 +1,83 @@
 category,subcategory,category_name,description,product_key
-00,04,Generalized Controllers,ControLinc [2430],
-00,05,Generalized Controllers,RemoteLinc [2440],34
-00,06,Generalized Controllers,Icon Tabletop Controller [2830],
-00,09,Generalized Controllers,SignaLinc RF Signal Enhancer [2442],
-00,0A,Generalized Controllers,Balboa Instruments Poolux LCD Controller,7
-00,0B,Generalized Controllers,Access Point [2443],22
-00,0C,Generalized Controllers,IES Color Touchscreen,28
-01,00,Dimmable Lighting Control,LampLinc V2 [2456D3],
-01,01,Dimmable Lighting Control,SwitchLinc V2 Dimmer 600W [2476D],
-01,02,Dimmable Lighting Control,In-LineLinc Dimmer [2475D],
-01,03,Dimmable Lighting Control,Icon Switch Dimmer [2876D],
-01,04,Dimmable Lighting Control,SwitchLinc V2 Dimmer 1000W [2476DH],
-01,06,Dimmable Lighting Control,LampLinc 2-Pin [2456D2],
-01,07,Dimmable Lighting Control,Icon LampLinc V2 2-Pin [2456D2],
-01,09,Dimmable Lighting Control,KeypadLinc Dimmer [2486D],37
-01,0A,Dimmable Lighting Control,Icon In-Wall Controller [2886D],
-01,0D,Dimmable Lighting Control,SocketLinc [2454D],1e
-01,13,Dimmable Lighting Control,Icon SwitchLinc Dimmer for Lixar/Bell Canada [2676D-B],32
-01,17,Dimmable Lighting Control,ToggleLinc Dimmer [2466D],
-02,09,ApplianceLinc [2456S3],
-02,0a,SwitchLinc Relay [2476S],
-02,0b,Icon On Off Switch [2876S],
-02,0c,Icon Appliance Adapter [2856S3],
-02,0d,ToggleLinc Relay [2466S],
-02,0e,SwitchLinc Relay Countdown Timer [2476ST],
-02,10,In-LineLinc Relay [2475D],1b
-02,13,Icon SwitchLinc Relay for Lixar/Bell Canada [2676R-B],33
-03,01,PowerLinc Serial [2414S],
-03,02,PowerLinc USB [2414U],
-03,03,Icon PowerLinc Serial [2814 S],
-03,04,Icon PowerLinc USB [2814U],
-03,05,Smartlabs Power Line Modem Serial [2412S],c
-04,00,Compacta EZRain Sprinkler Controller,1
-05,00,Broan SMSC080 Exhaust Fan,
-05,01,Compacta EZTherm,2
-05,02,Broan SMSC110 Exhaust Fan,
-05,03,Venstar RF Thermostat Module,1f
-05,04,Compacta EZThermx Thermostat,24
-06,00,Compacta EZPool,3
-07,00,IOLinc,1a
-07,01,Compacta EZSns1W Sensor Interface Module,4
-07,02,Compacta EZIO8T I/O Module,12
-07,03,Compacta EZIO2X4 #5010D INSTEON/X10 I/O Module for Dakota Alerts Products,5
-07,04,Compacta EZIO8SA I/O Module,13
-07,05,Compacta EZSnsRx RF #5010E Receiver Interface Module,14
-07,06,Compacta EZISnsRf Sensor Interface Module,15
-08,,Home Entertainment,
-09,00,Compacta EZEnergy,6
-09,01,OnSitePro Leak Detector,20
-09,02,OnSitePro Control Valve,21
-09,03,Energy Inc. TED Measuring Transmitting Unit (MTU),25
-09,04,Energy Inc. TED Receiving Display Unit (RDU),26
-0a,,Built-In Appliance Control,
-0b,,Plumbing,
-0c,,Communication,
-0d,,Computer Control,
-0e,00,Somfy Drape Controller RF Bridge,b
-0f,00,Weiland Doors Central Drive and Controller,e
-0f,01,Weiland Doors Secondary Central Drive,f
-0f,02,Weiland Doors Assist Drive,10
-0f,03,Weiland Doors Elevation Drive,11
-10,00,First Alert ONELink RF to INSTEON Bridge,27
-11,,Surveillance,
-12,,Automotive,
-13,,Pet Care,
-14,,Toys,
-15,,Timekeeping,
-16,,Holiday,
-17,,Reserved,
-18,,Unassigned,
+0,4,Generalized Controllers,ControLinc [2430],
+0,5,Generalized Controllers,RemoteLinc [2440],34
+0,6,Generalized Controllers,Icon Tabletop Controller [2830],
+0,9,Generalized Controllers,SignaLinc RF Signal Enhancer [2442],
+0,a,Generalized Controllers,Balboa Instruments Poolux LCD Controller,7
+0,b,Generalized Controllers,Access Point [2443],22
+0,c,Generalized Controllers,IES Color Touchscreen,28
+0,*,Generalized Controllers,,,
+1,0,Dimmable Lighting Control,LampLinc V2 [2456D3],
+1,1,Dimmable Lighting Control,SwitchLinc V2 Dimmer 600W [2476D],
+1,2,Dimmable Lighting Control,In-LineLinc Dimmer [2475D],
+1,3,Dimmable Lighting Control,Icon Switch Dimmer [2876D],
+1,4,Dimmable Lighting Control,SwitchLinc V2 Dimmer 1000W [2476DH],
+1,6,Dimmable Lighting Control,LampLinc 2-Pin [2456D2],
+1,7,Dimmable Lighting Control,Icon LampLinc V2 2-Pin [2456D2],
+1,9,Dimmable Lighting Control,KeypadLinc Dimmer [2486D],37
+1,A,Dimmable Lighting Control,Icon In-Wall Controller [2886D],
+1,D,Dimmable Lighting Control,SocketLinc [2454D],1e
+1,13,Dimmable Lighting Control,Icon SwitchLinc Dimmer for Lixar/Bell Canada [2676D-B],32
+1,17,Dimmable Lighting Control,ToggleLinc Dimmer [2466D],
+1,*,Dimmable Lighting Control,,,
+2,9,Switched Lighting Control,ApplianceLinc [2456S3],
+2,a,Switched Lighting Control,SwitchLinc Relay [2476S],
+2,b,Switched Lighting Control,Icon On Off Switch [2876S],
+2,c,Switched Lighting Control,Icon Appliance Adapter [2856S3],
+2,d,Switched Lighting Control,ToggleLinc Relay [2466S],
+2,e,Switched Lighting Control,SwitchLinc Relay Countdown Timer [2476ST],
+2,10,Switched Lighting Control,In-LineLinc Relay [2475D],1b
+2,13,Switched Lighting Control,Icon SwitchLinc Relay for Lixar/Bell Canada [2676R-B],33
+2,*,Switched Lighting Control,,,
+3,1,Network Bridges,PowerLinc Serial [2414S],
+3,2,Network Bridges,PowerLinc USB [2414U],
+3,3,Network Bridges,Icon PowerLinc Serial [2814 S],
+3,4,Network Bridges,Icon PowerLinc USB [2814U],
+3,5,Network Bridges,Smartlabs Power Line Modem Serial [2412S],c
+3,*,Network Bridges,,,
+4,0,Irrigation Control,Compacta EZRain Sprinkler Controller,1
+4,*,Irrigation Control,,,
+5,0,Climate Control,Broan SMSC080 Exhaust Fan,
+5,1,Climate Control,Compacta EZTherm,2
+5,2,Climate Control,Broan SMSC110 Exhaust Fan,
+5,3,Climate Control,Venstar RF Thermostat Module,1f
+5,4,Climate Control,Compacta EZThermx Thermostat,24
+5,*,Climate Control,,,
+6,0,Pool and Spa Control,Compacta EZPool,3
+6,*,Pool and Spa Control,,,
+7,0,Sensors and Actuators,IOLinc,1a
+7,1,Sensors and Actuators,Compacta EZSns1W Sensor Interface Module,4
+7,2,Sensors and Actuators,Compacta EZIO8T I/O Module,12
+7,3,Sensors and Actuators,Compacta EZIO2X4 #5010D INSTEON/X10 I/O Module for Dakota Alerts Products,5
+7,4,Sensors and Actuators,Compacta EZIO8SA I/O Module,13
+7,5,Sensors and Actuators,Compacta EZSnsRx RF #5010E Receiver Interface Module,14
+7,6,Sensors and Actuators,Compacta EZISnsRf Sensor Interface Module,15
+7,*,Sensors and Actuators,,,
+8,*,Home Entertainment,,,
+9,0,Energy Management,Compacta EZEnergy,6
+9,1,Energy Management,OnSitePro Leak Detector,20
+9,2,Energy Management,OnSitePro Control Valve,21
+9,3,Energy Management,Energy Inc. TED Measuring Transmitting Unit (MTU),25
+9,4,Energy Management,Energy Inc. TED Receiving Display Unit (RDU),26
+9,*,Energy Management,,,
+a,*,Built-In Appliance Control,,,
+b,*,Plumbing,,,
+c,*,Communication,,,
+d,*,Computer Control,,,
+e,0,Window Coverings,Somfy Drape Controller RF Bridge,b
+e,*,Window Coverings,,,
+f,0,Access Control,Weiland Doors Central Drive and Controller,e
+f,1,Access Control,Weiland Doors Secondary Central Drive,f
+f,2,Access Control,Weiland Doors Assist Drive,10
+f,3,Access Control,Weiland Doors Elevation Drive,11
+f,*,Access Control,,,
+10,0,"Security, Health, Safety",First Alert ONELink RF to INSTEON Bridge,27
+10,*,"Security, Health, Safety",,,
+11,*,Surveillance,,,
+12,*,Automotive,,,
+13,*,Pet Care,,,
+14,*,Toys,,,
+15,*,Timekeeping,,,
+16,*,Holiday,,,
+17,*,Reserved,,,
+18,*,Unassigned,,,
