@@ -205,3 +205,80 @@ extended,broadcast,all_link,command,category,subcategory,cmd1,cmd2
 0,0,0,FX Commands,*,*,fd,*
 0,0,0,FX Commands,*,*,fe,*
 0,0,0,FX Commands,*,*,ff,*
+1,0,0,Product Data Response,*,*,3,0
+1,0,0,FX Username Response,*,*,3,1
+1,0,0,Device Text String Response,*,*,3,2
+1,0,0,Set Device Text String,*,*,3,3
+1,0,0,Set ALL-Link Command Alias ,*,*,3,4
+1,0,0,Set ALL-Link Command Alias Extended Data,*,*,3,5
+1,0,0,Block Data Transfer: Transfer Failure,*,*,2a,0
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,1
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,2
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,3
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,4
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,5
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,6
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,7
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,8
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,9
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,a
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,b
+1,0,0,Block Data Transfer: Transfer Complete,*,*,2a,c
+1,0,0,Block Data Transfer: Transfer Continues,*,*,2a,d
+1,0,0,Block Data Transfer: Request Block Data Transfer,*,*,2a,ff
+1,0,0,Block Data Transfer,*,*,2a,*
+1,0,0,Extended Set/Get,0,4,2e,0
+1,0,0,Extended Set/Get,0,5,2e,0
+1,0,0,Extended Set/Get,0,6,2e,0
+1,0,0,Extended Set/Get,1,*,2e,0
+1,0,0,Extended Set/Get,2,*,2e,0
+1,0,0,Read/Write ALL-Link Database (ALDB),*,*,2f,0
+1,0,0,Trigger ALL-Link Command ,1,1,30,0
+1,0,0,Trigger ALL-Link Command ,1,4,30,0
+1,0,0,Trigger ALL-Link Command ,1,9,30,0
+1,0,0,Trigger ALL-Link Command ,1,1,30,0
+1,0,0,Trigger ALL-Link Command ,1,a,30,0
+1,0,0,Trigger ALL-Link Command ,1,e,30,0
+1,0,0,Trigger ALL-Link Command ,1,f,30,0
+1,0,0,Set Sprinkler Program,4,*,40,*
+1,0,0,Sprinkler Get Program Response,4,*,41,*
+1,0,0,I/O Set Sensor Nominal,7,*,4b,*
+1,0,0,I/O Alarm Data Response,7,*,4c,0
+1,0,0,Pool Set Device Temperature ,6,*,50,0
+1,0,0,Pool Set Device Hysteresis,6,*,50,1
+1,0,0,Thermostat Zone Temperature Up,5,,68,*
+1,0,0,Thermostat Zone Temperature Down,5,,69,*
+1,0,0,Thermostat Set Zone Cool Setpoint,5,,6c,*
+1,0,0,Thermostat Set Zone Heat Setpoint ,5,,6d,*
+1,0,0,FX Commands,*,*,f0,*
+1,0,0,FX Commands,*,*,f1,*
+1,0,0,FX Commands,*,*,f2,*
+1,0,0,FX Commands,*,*,f3,*
+1,0,0,FX Commands,*,*,f4,*
+1,0,0,FX Commands,*,*,f5,*
+1,0,0,FX Commands,*,*,f6,*
+1,0,0,FX Commands,*,*,f7,*
+1,0,0,FX Commands,*,*,f8,*
+1,0,0,FX Commands,*,*,f9,*
+1,0,0,FX Commands,*,*,fa,*
+1,0,0,FX Commands,*,*,fb,*
+1,0,0,FX Commands,*,*,fc,*
+1,0,0,FX Commands,*,*,fd,*
+1,0,0,FX Commands,*,*,fe,*
+1,0,0,FX Commands,*,*,ff,*
+0,0,1,ALL-Link Recall,*,*,11,*
+0,0,1,ALL-Link Alias 2 High,*,*,12,*
+0,0,1,ALL-Link Alias 1 Low,*,*,13,*
+0,0,1,ALL-Link Alias 2 Low,*,*,14,*
+0,0,1,ALL-Link Alias 3 High,*,*,15,*
+0,0,1,ALL-Link Alias 3 Low,*,*,16,*
+0,0,1,ALL-Link Alias 4 High ,*,*,17,*
+0,0,1,ALL-Link Alias 4 Low ,*,*,18,*
+0,0,1,ALL-Link Alias 5 ,*,*,21,*
+0,1,0,SET Button Pressed Responder,*,*,1,*
+0,1,0,SET Button Pressed Controller,*,*,2,*
+0,1,0,Test Powerline Phase: Sender is on powerline phase A (low cycle),*,*,3,0
+0,1,0,Test Powerline Phase: Sender is on powerline phase B (high cycle),*,*,3,1
+0,1,0,Heartbeat,0,5,4,*
+0,1,0,Device Status Changed ,*,*,27,*
+0,1,0,SALad Debug Report,*,*,49,*
