@@ -27,7 +27,7 @@
       <table>
         <title>Devices Missing Meta-Data</title>
         <search>
-          <query>sourcetype=insteon | fillnull value=NULL category subcategory | search category=NULL OR subcategory=NULL | stats count by device | sort -count</query>
+          <query>sourcetype=insteon | fillnull value=NULL category subcategory | search category=NULL OR subcategory=NULL | stats count as event_count by device | sort -count</query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>
