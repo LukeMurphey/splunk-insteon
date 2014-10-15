@@ -1,0 +1,29 @@
+<form>
+  <label>Message Meta-Data Gaps</label>
+  <fieldset submitButton="true">
+    <input type="time" token="datetime" autoRun="true">
+      <label></label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Messages Missing Meta-Data</title>
+        <search>
+          <query>sourcetype=insteon device_category=* device_subcategory=* | stats count by device_category device_subcategory cmd1 cmd2 broadcast ack all_link | sort -count</query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>
