@@ -16,7 +16,7 @@
         <p>
         The Insteon app includes a database of Insteon messages that is based upon <a href="http://www.insteon.com/pdf/INSTEON_Command_Tables_20070925a.pdf" target="_blank">Insteon's official documentation</a>.
         However, the documentation is incomplete and may be missing some messages.
-        Messages without the corresponding information is listed below.
+        Messages without the corresponding information are listed below.
         </p>
     </html>
   </row>
