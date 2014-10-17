@@ -86,7 +86,6 @@ class InsteonPLM(HAInterface):
                                     'responseSize':7,
                                     'callBack':self.__process_StandardInsteonMessagePLMEcho
                                   },
-                                  
                                 '50': {
                                     'responseSize':9,
                                     'callBack':self.__process_InboundStandardInsteonMessage
@@ -94,15 +93,15 @@ class InsteonPLM(HAInterface):
                                 '51': {
                                     'responseSize':23,
                                     'callBack':self.__process_InboundExtendedInsteonMessage
-                                  },                                
-                                '63': {
-                                    'responseSize':4,
-                                    'callBack':self.__process_StandardX10MessagePLMEcho
                                   },
-                                '52': {
+                                '52': { #x10_received
                                     'responseSize':4,
                                     'callBack':self.__process_InboundX10Message
                                  },
+                                '63': {
+                                    'responseSize':4,
+                                    'callBack':self.__process_StandardX10MessagePLMEcho
+                                  }
                             }
         
         self.__insteonCommands = {
@@ -256,7 +255,7 @@ class InsteonPLM(HAInterface):
             firstByte = self.__interface.read(1)            
             if len(firstByte) == 1:
                 #got at least one byte.  Check to see what kind of byte it is (helps us sort out how many bytes we need to read now)
-                                    
+                
                 if firstByte[0] == '\x02':
                     #modem command (could be an echo or a response)
                     #read another byte to sort that out
@@ -465,10 +464,37 @@ class InsteonPLM(HAInterface):
         else:
             self.logger.debug( "Unable to find pending command details for the following packet:" + hex_dump(responseBytes, len(responseBytes)) )
             
-    def __process_StandardInsteonMessagePLMEcho(self, responseBytes):                
-        #print utilities.hex_dump(responseBytes, len(responseBytes))
+    def __process_StandardInsteonMessagePLMEcho(self, responseBytes):
+        (insteonCommand, toIdHigh, toIdMid, toIdLow, messageFlags, command1, command2, ack_byte ) = struct.unpack('xBBBBBBBB', responseBytes)        
+        
+        if self.__insteonCallback is not None:
+            
+            #check to see what kind of message this was (based on message flags)
+            isBroadcast = messageFlags & (1 << 7) == (1 << 7)
+            isDirect = not isBroadcast
+            isAck = messageFlags & (1 << 5) == (1 << 5)
+            isNak = isAck and isBroadcast
+            isAllLink = messageFlags & (1 << 6) == (1 << 6)
+            
+            self.logger.debug( hex_dump(responseBytes, len(responseBytes)) )
+            
+            params = {
+                    'to'          : self.__addressToStr(toIdHigh, toIdMid, toIdLow),
+                    'cmd1'        : format(command1, 'x'),
+                    'cmd2'        : format(command2, 'x'),
+                    'broadcast'   : isBroadcast,
+                    'direct'      : isDirect,
+                    'ack'         : isAck,
+                    'nack'        : isNak,
+                    'all_link'    : isAllLink,
+                    'extended'    : False
+                }
+        
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+        
         #we don't do anything here.  Just eat the echoed bytes
-        pass
+        #pass
             
     def __process_StandardX10MessagePLMEcho(self, responseBytes):
         # Just ack / error echo from sending an X10 command
@@ -518,8 +544,11 @@ class InsteonPLM(HAInterface):
             
             #run the callback if one is defined
             self.__insteonCallback( params )
+        
+    def __process_InboundStandardInsteonMessageNoop(self, responseBytes):
+        self.__process_InboundStandardInsteonMessage(responseBytes, noop=True)
             
-    def __process_InboundStandardInsteonMessage(self, responseBytes):
+    def __process_InboundStandardInsteonMessage(self, responseBytes, noop=False):
         (insteonCommand, fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, messageFlags, command1, command2) = struct.unpack('xBBBBBBBBBB', responseBytes)        
         
         foundCommandHash = None            
@@ -530,7 +559,6 @@ class InsteonPLM(HAInterface):
         isDirect = not isBroadcast
         isAck = messageFlags & (1 << 5) == (1 << 5)
         isNak = isAck and isBroadcast
-        
         isAllLink = messageFlags & (1 << 6) == (1 << 6)
         
         insteonCommandCode = "%02X" % command1
@@ -554,6 +582,10 @@ class InsteonPLM(HAInterface):
         
         #run the callback if one is defined
         self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommandCode, isBroadcast, isDirect, isAck, isNak, isAllLink, False)                 
+        
+        # Just run the callback
+        if noop:
+            return
         
         #find our pending command in the list so we can say that we're done (if we are running in synchronous mode - if not well then the caller didn't care)
         for (commandHash, commandDetails) in self.__pendingCommandDetails.items():
