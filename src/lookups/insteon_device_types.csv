@@ -28,12 +28,14 @@ category,subcategory,category_name,description,product_key
 2,e,Switched Lighting Control,SwitchLinc Relay Countdown Timer [2476ST],
 2,10,Switched Lighting Control,In-LineLinc Relay [2475D],1b
 2,13,Switched Lighting Control,Icon SwitchLinc Relay for Lixar/Bell Canada [2676R-B],33
+2,37,Switched Lighting Control,On/Off Module [2635-222],,
 2,*,Switched Lighting Control,,,
 3,1,Network Bridges,PowerLinc Serial [2414S],
 3,2,Network Bridges,PowerLinc USB [2414U],
 3,3,Network Bridges,Icon PowerLinc Serial [2814 S],
 3,4,Network Bridges,Icon PowerLinc USB [2814U],
 3,5,Network Bridges,Smartlabs Power Line Modem Serial [2412S],c
+3,37,Network Bridges,Hub [2242-222],,
 3,*,Network Bridges,,,
 4,0,Irrigation Control,Compacta EZRain Sprinkler Controller,1
 4,*,Irrigation Control,,,
@@ -52,6 +54,7 @@ category,subcategory,category_name,description,product_key
 7,4,Sensors and Actuators,Compacta EZIO8SA I/O Module,13
 7,5,Sensors and Actuators,Compacta EZSnsRx RF #5010E Receiver Interface Module,14
 7,6,Sensors and Actuators,Compacta EZISnsRf Sensor Interface Module,15
+7,9,Sensors and Actuators,SynchroLinc [2423A5],,
 7,*,Sensors and Actuators,,,
 8,*,Home Entertainment,,,
 9,0,Energy Management,Compacta EZEnergy,6
@@ -72,6 +75,8 @@ f,2,Access Control,Weiland Doors Assist Drive,10
 f,3,Access Control,Weiland Doors Elevation Drive,11
 f,*,Access Control,,,
 10,0,"Security, Health, Safety",First Alert ONELink RF to INSTEON Bridge,27
+10,a,"Security, Health, Safety",Smoke Bridge [2982-222],,
+10,8,"Security, Health, Safety",Water Leak Sensor [2852-222],,
 10,*,"Security, Health, Safety",,,
 11,*,Surveillance,,,
 12,*,Automotive,,,
