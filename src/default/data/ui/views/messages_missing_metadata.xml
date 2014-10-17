@@ -26,7 +26,7 @@
       <table>
         <title>Messages Missing Meta-Data</title>
         <search>
-          <query>sourcetype=insteon category=* subcategory=* NOT command=* | eval p1=if(extended=1,"E", "S") | eval p2=case(all_link=1,"A", broadcast=1, "B", direct=1, "D") | eval cmd1=if(len(cmd1)==1,"0".cmd1, cmd1) | eval cmd2=if(len(cmd2)==1,"0".cmd2, cmd2) | eval command=p1.p2." 0x".cmd1.cmd2 | stats count as event_count by category_name category subcategory command | sort -event_count</query>
+          <query>sourcetype=insteon category=* subcategory=* NOT command=* `prettify_command(command)` | stats count as event_count by category_name category subcategory command | sort -event_count</query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>
