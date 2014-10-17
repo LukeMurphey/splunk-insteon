@@ -1,0 +1,30 @@
+<form>
+  <label>Devices</label>
+  <fieldset submitButton="false" autoRun="true">
+  </fieldset>
+  
+  <row>
+    <html>
+      <h1>Devices</h1>
+        <p>
+        Below is the list of devices currently recognized by this app.
+        </p>
+    </html>
+  </row>
+  
+  <row>
+    <panel>
+      <table>
+        <title>Devices</title>
+        <search>
+          <query>| inputlookup append=t insteon_devices | lookup insteon_device_types category subcategory OUTPUT category_name description | eval category=category_name | table address category description name room</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>
