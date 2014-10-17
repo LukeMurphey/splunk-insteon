@@ -125,12 +125,12 @@ class InsteonInput(ModularInput):
         index           = cleaned_params.get("index", "default")
         source          = stanza
         
-        logger.debug("Running")
+        logger.debug("Entering the modular input run loop")
         
         # Start the connection to the PLM to begin intercepting messages
         if self.plm is None:
             
-            logger.debug("Configuring an Insteon PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
+            logger.info("Initiating a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
             try:
                 self.plm = InsteonPLM(TCP(plm_host, plm_port))
@@ -139,7 +139,7 @@ class InsteonInput(ModularInput):
                 
                 self.plm.onReceivedInsteon(self.insteon_received)
                 
-                logger.info("Established a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
+                logger.info("Established a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
             except:
                 logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
