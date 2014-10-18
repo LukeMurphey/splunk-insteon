@@ -22,8 +22,10 @@
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
-        <option name="drilldown">cell</option>
         <option name="count">10</option>
+        <drilldown>
+				<link><![CDATA[/app/insteon/search/?q=search%20(from%3D"$row.address$"%20OR%20to%3D"$row.address$")&earliest=$earliest$&latest=$latest$]]></link>
+		</drilldown>
       </table>
     </panel>
   </row>
