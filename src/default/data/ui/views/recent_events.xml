@@ -1,0 +1,31 @@
+<form>
+  <label>Recent Activity</label>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="datetime">
+      <label></label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+ 
+  
+  <row>
+    <panel>
+      <table>
+        <title>Recent Activity</title>
+        <search>
+          <query>sourcetype=insteon `override_command_with_custom` `override_empty_command_with_raw` `use_non_null_field(from,from_device_name,from)` `use_non_null_field(to,to_device_name,to)` | table _time ack from to command command_description command_raw</query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">20</option>
+      </table>
+    </panel>
+  </row>
+</form>
