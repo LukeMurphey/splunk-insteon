@@ -534,6 +534,10 @@ class InsteonPLM(HAInterface):
                 params['device_subcategory'] = format(toIdMid, 'x')
                 params['device_revision'] = format(toIdLow, 'x')
                 
+            # Determine if this is an all-link message and parse the to address as the group
+            elif isAllLink:
+                params['all_link_group'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
+                
             # If not a linking request, then the address is the actual address
             else:
                 params['to'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
