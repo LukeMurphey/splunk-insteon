@@ -60,7 +60,7 @@ class PortField(IntegerField):
         else:
             return v
 
-class InsteonInput(ModularInput):
+class InsteonPLMInput(ModularInput):
     """
     The insteon modular input connects to an Insteon PLM in order to monitor the status of Insteon or X10 devices.
     """
@@ -81,7 +81,7 @@ class InsteonInput(ModularInput):
         self.plm = None
         
         # These are values that are persisted so that the PLM callback has the data to output the event correctly
-        self.sourcetype = "insteon"
+        self.sourcetype = "insteon_plm"
         self.index = "default"
         self.source = None
         self.stanza = None
@@ -96,7 +96,7 @@ class InsteonInput(ModularInput):
     
     def insteon_received(self, params):
         
-        logger.debug("Receiving an Insteon message")
+        #logger.debug("Receiving an Insteon message")
         
         try:
             # Convert the "True" and "False" values to 1 and 0
@@ -111,7 +111,7 @@ class InsteonInput(ModularInput):
             # Output the event
             self.output_event(params, self.stanza, index=self.index, sourcetype=self.sourcetype, source=self.source)
             
-            logger.debug("Processed an Insteon message")
+            #logger.debug("Processed an Insteon message")
         except:
             logger.exception("Error when attempting to process an Insteon message")
     
@@ -121,11 +121,11 @@ class InsteonInput(ModularInput):
         plm_host        = cleaned_params["plm_host"]
         plm_port        = cleaned_params.get("plm_port", 9761)
         
-        sourcetype      = cleaned_params.get("sourcetype", "insteon")
+        sourcetype      = cleaned_params.get("sourcetype", "insteon_plm")
         index           = cleaned_params.get("index", "default")
         source          = stanza
         
-        logger.debug("Entering the modular input run loop")
+        #logger.debug("Entering the modular input run loop")
         
         # Start the connection to the PLM to begin intercepting messages
         if self.plm is None:
@@ -144,9 +144,9 @@ class InsteonInput(ModularInput):
                 logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
 if __name__ == '__main__':
-    logger.debug("Starting the input")
+    logger.info("Starting the input")
     try:
-        insteon_input = InsteonInput()
+        insteon_input = InsteonPLMInput()
         insteon_input.execute()
         sys.exit(0)
     except Exception:

@@ -1,4 +1,4 @@
-[insteon://default]
+[insteon_plm://default]
 * Configure an input for monitoring an Insteon PLM
 
 plm_host = <value>
