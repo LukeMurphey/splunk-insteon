@@ -78,19 +78,19 @@ class InsteonPLM(HAInterface):
         
         self.logger = logging.getLogger('pyinsteon')
         
-        self.__modemCommands = {'60': {
+        self.__modemCommands = {'60': { #plm_info
                                     'responseSize':7,
                                     'callBack':self.__process_PLMInfo
                                   },
-                                '62': {
+                                '62': { #insteon_send
                                     'responseSize':7,
                                     'callBack':self.__process_StandardInsteonMessagePLMEcho
                                   },
-                                '50': {
+                                '50': { #insteon_received
                                     'responseSize':9,
                                     'callBack':self.__process_InboundStandardInsteonMessage
                                   },
-                                '51': {
+                                '51': { #insteon_ext_received
                                     'responseSize':23,
                                     'callBack':self.__process_InboundExtendedInsteonMessage
                                   },
@@ -98,9 +98,17 @@ class InsteonPLM(HAInterface):
                                     'responseSize':4,
                                     'callBack':self.__process_InboundX10Message
                                  },
-                                '63': {
+                                '58': { #all_link_clean_status
+                                    'responseSize':1,
+                                    'callBack':self.__process_StandardInsteonMessageAllLinkCleanStatus
+                                  },
+                                '63': { #x10_send
                                     'responseSize':4,
                                     'callBack':self.__process_StandardX10MessagePLMEcho
+                                  },
+                                '61': { #all_link_send
+                                    'responseSize':4,
+                                    'callBack':self.__process_StandardInsteonMessageAllLinkSend
                                   }
                             }
         
@@ -284,16 +292,16 @@ class InsteonPLM(HAInterface):
                             if callBack:
                                 callBack(firstByte + secondByte + remainingBytes)    
                             else:
-                                self.logger.debug( "No callBack defined for for modem command %s" % modemCommand )
+                                self.logger.warn( "No callBack defined for for modem command %s" % modemCommand )
                         
                         lastPacketHash = currentPacketHash            
                         
                     else:
-                        self.logger.debug( "No responseSize defined for modem command %s" % modemCommand )          
+                        self.logger.warn( "No responseSize defined for modem command %s" % modemCommand )          
                 elif firstByte[0] == '\x15':
-                    self.logger.debug( "Received a Modem NAK!" )
+                    self.logger.warn( "Received a Modem NAK!" )
                 else:
-                    self.logger.debug( "Unknown first byte %s" % binascii.hexlify(firstByte[0]) )
+                    self.logger.critical( "Unknown first byte %s" % binascii.hexlify(firstByte[0]) )
             else:
                 #print "Sleeping"
                 #X10 is slow.  Need to adjust based on protocol sent.  Or pay attention to NAK and auto adjust
@@ -464,7 +472,65 @@ class InsteonPLM(HAInterface):
         else:
             self.logger.debug( "Unable to find pending command details for the following packet:" + hex_dump(responseBytes, len(responseBytes)) )
             
+    def __process_StandardInsteonMessageAllLinkSend(self, responseBytes):
+
+        if self.__insteonCallback is not None:
+            self.logger.debug( "__process_StandardInsteonMessageAllLinkSend packet:" + hex_dump(responseBytes, len(responseBytes)) )
+            
+            try:
+                (insteonCommand, all_link_group, command1, command2) = struct.unpack('xBBBBx', responseBytes)
+            except:
+                self.logger.exception("Error when parsing bytes in __process_StandardInsteonMessageAllLinkSend")
+                return
+            
+            #self.logger.debug("__process_StandardInsteonMessageAllLinkSend:" + str(len(responseBytes)))
+            params = {
+                        'all_link_group'     : all_link_group,
+                        'cmd1'               : format(command1, 'x'),
+                        'cmd2'               : format(command2, 'x'),
+                        'broadcast'          : True,
+                        'direct'             : False,
+                        'ack'                : False,
+                        'nack'               : False,
+                        'all_link'           : True,
+                        'extended'           : False,
+                        'modem_command'      : 'ALL-Link Send',
+                        'modem_command_code' : format(insteonCommand, 'x')
+            }
+            
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+    
+    def __process_StandardInsteonMessageAllLinkCleanStatus(self, responseBytes):
+        
+        #self.logger.debug( "__process_StandardInsteonMessageAllLinkCleanStatus packet:" + hex_dump(responseBytes, len(responseBytes)) )
+            
+        if self.__insteonCallback is not None:
+            
+            try:
+                (insteonCommand, status) = struct.unpack('xBB', responseBytes)
+            except:
+                self.logger.exception("Error when parsing bytes in __process_StandardInsteonMessageAllLinkCleanStatus")
+                return
+            
+            #self.logger.debug("__process_StandardInsteonMessageAllLinkSend:" + str(len(responseBytes)))
+            params = {
+                        'status'             : status,
+                        'broadcast'          : True,
+                        'direct'             : False,
+                        'ack'                : False,
+                        'nack'               : False,
+                        'all_link'           : True,
+                        'extended'           : False,
+                        'modem_command'      : 'ALL-Link Cleanup',
+                        'modem_command_code' : format(insteonCommand, 'x')
+            }
+            
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+            
     def __process_StandardInsteonMessagePLMEcho(self, responseBytes):
+        
         (insteonCommand, toIdHigh, toIdMid, toIdLow, messageFlags, command1, command2, ack_byte ) = struct.unpack('xBBBBBBBB', responseBytes)        
         
         if self.__insteonCallback is not None:
@@ -476,18 +542,20 @@ class InsteonPLM(HAInterface):
             isNak = isAck and isBroadcast
             isAllLink = messageFlags & (1 << 6) == (1 << 6)
             
-            self.logger.debug( hex_dump(responseBytes, len(responseBytes)) )
+            #self.logger.debug( hex_dump(responseBytes, len(responseBytes)) )
             
             params = {
-                    'to'          : self.__addressToStr(toIdHigh, toIdMid, toIdLow),
-                    'cmd1'        : format(command1, 'x'),
-                    'cmd2'        : format(command2, 'x'),
-                    'broadcast'   : isBroadcast,
-                    'direct'      : isDirect,
-                    'ack'         : isAck,
-                    'nack'        : isNak,
-                    'all_link'    : isAllLink,
-                    'extended'    : False
+                    'to'                 : self.__addressToStr(toIdHigh, toIdMid, toIdLow),
+                    'cmd1'               : format(command1, 'x'),
+                    'cmd2'               : format(command2, 'x'),
+                    'broadcast'          : isBroadcast,
+                    'direct'             : isDirect,
+                    'ack'                : isAck,
+                    'nack'               : isNak,
+                    'all_link'           : isAllLink,
+                    'extended'           : False,
+                    'modem_command'      : 'Send Message',
+                    'modem_command_code' : format(insteonCommand, 'x')
                 }
         
             #run the callback if one is defined
@@ -511,38 +579,46 @@ class InsteonPLM(HAInterface):
     def __addressToStr(self, addressHigh, addressMid, addressLow):
         return "{0:0{3}x}.{1:0{3}x}.{2:0{3}x}".format(addressHigh, addressMid, addressLow, 2)
     
-    def __executeCallback(self, fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommandCode, isBroadcast, isDirect, isAck, isNak, isAllLink, extended, data=None):
+    def __executeCallback(self, fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommand, insteonCommandDescription, isBroadcast, isDirect, isAck, isNak, isAllLink, extended, data=None):
         
         if self.__insteonCallback is not None:
             
             params = {
-                'from'        : self.__addressToStr(fromIdHigh, fromIdMid, fromIdLow),
-                'cmd1'        : format(command1, 'x'),
-                'cmd2'        : format(command2, 'x'),
-                'cmd_code'    : insteonCommandCode,
-                'broadcast'   : isBroadcast,
-                'direct'      : isDirect,
-                'ack'         : isAck,
-                'nack'        : isNak,
-                'all_link'    : isAllLink,
-                'extended'    : extended
+                'from'               : self.__addressToStr(fromIdHigh, fromIdMid, fromIdLow),
+                'cmd1'               : format(command1, 'x'),
+                'broadcast'          : isBroadcast,
+                'direct'             : isDirect,
+                'ack'                : isAck,
+                'nack'               : isNak,
+                'all_link'           : isAllLink,
+                'extended'           : extended,
+                'modem_command'      : insteonCommandDescription,
+                'modem_command_code' : format(insteonCommand, 'x')
             }
             
-            # Determine if this is a linking request and parse the address as the meta-data
+            # determine if this is a linking request and parse the address as the meta-data
             if isBroadcast and not extended and command1 in [1, 2]:
                 params['device_category'] = format(toIdHigh, 'x')
                 params['device_subcategory'] = format(toIdMid, 'x')
                 params['device_revision'] = format(toIdLow, 'x')
                 
-            # Determine if this is an all-link message and parse the to address as the group
-            elif isAllLink:
-                params['all_link_group'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
+            # all-link messages store the group number in the command 2 field
+            if isAllLink:
+                params['all_link_group'] = command2
+            # otherwise the cmd2 is an actual command
+            else:
+                params['cmd2'] = format(command2, 'x')
                 
-            # If not a linking request, then the address is the actual address
+            # broadcast all link messages use the to field to store the all-link group number
+            if isBroadcast and isAllLink:
+                params['_to'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
+                
+            # otherwise, the address is the actual address
             else:
                 params['to'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
                 
-            # Add the data field if provided
+                
+            # add the data field if provided
             if data is not None:
                 params['data'] = data
             
@@ -585,7 +661,7 @@ class InsteonPLM(HAInterface):
             insteonCommandCode = 'SD19'
         
         #run the callback if one is defined
-        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommandCode, isBroadcast, isDirect, isAck, isNak, isAllLink, False)                 
+        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommand, 'Standard Message', isBroadcast, isDirect, isAck, isNak, isAllLink, False)                 
         
         # Just run the callback
         if noop:
@@ -643,9 +719,10 @@ class InsteonPLM(HAInterface):
                         break
             
         if foundCommandHash == None:
-            self.logger.debug( "Unhandled packet (couldn't find any pending command to deal with it)" )
-            self.logger.debug( "This could be an unsolicited broadcast message" )
-                        
+            #self.logger.debug( "Unhandled packet (couldn't find any pending command to deal with it)" )
+            #self.logger.debug( "This could be an unsolicited broadcast message" )
+            pass
+        
         if waitEvent and foundCommandHash:
             waitEvent.set()            
             del self.__pendingCommandDetails[foundCommandHash]
@@ -679,7 +756,7 @@ class InsteonPLM(HAInterface):
             insteonCommandCode = 'ED' + insteonCommandCode
 
         #run the callback if one is defined
-        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommandCode, isBroadcast, isDirect, isAck, isNak, isAllLink, False, data=data)                 
+        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommand, "Extended Message", isBroadcast, isDirect, isAck, isNak, isAllLink, False, data=data)                 
         
     def __process_InboundX10Message(self, responseBytes):        
         "Receive Handler for X10 Data"
