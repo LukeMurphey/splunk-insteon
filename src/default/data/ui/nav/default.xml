@@ -3,4 +3,5 @@
   <view name="messages_missing_metadata" />
   <view name="devices_missing_metadata" />
   <view name="insteon_devices" />
+  <view name="search" />
 </nav>
