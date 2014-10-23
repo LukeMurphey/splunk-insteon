@@ -266,15 +266,15 @@ extended,broadcast,all_link,command,category,subcategory,cmd1,cmd2,unofficial
 1,0,0,FX Commands,*,*,fd,*
 1,0,0,FX Commands,*,*,fe,*
 1,0,0,FX Commands,*,*,ff,*
-0,0,1,ALL-Link Recall,*,*,11,*
-0,0,1,ALL-Link Alias 2 High,*,*,12,*
-0,0,1,ALL-Link Alias 1 Low,*,*,13,*
-0,0,1,ALL-Link Alias 2 Low,*,*,14,*
-0,0,1,ALL-Link Alias 3 High,*,*,15,*
-0,0,1,ALL-Link Alias 3 Low,*,*,16,*
-0,0,1,ALL-Link Alias 4 High ,*,*,17,*
-0,0,1,ALL-Link Alias 4 Low ,*,*,18,*
-0,0,1,ALL-Link Alias 5 ,*,*,21,*
+0,*,1,ALL-Link Recall,*,*,11,*
+0,*,1,ALL-Link Alias 2 High,*,*,12,*
+0,*,1,ALL-Link Alias 1 Low,*,*,13,*
+0,*,1,ALL-Link Alias 2 Low,*,*,14,*
+0,*,1,ALL-Link Alias 3 High,*,*,15,*
+0,*,1,ALL-Link Alias 3 Low,*,*,16,*
+0,*,1,ALL-Link Alias 4 High ,*,*,17,*
+0,*,1,ALL-Link Alias 4 Low ,*,*,18,*
+0,*,1,ALL-Link Alias 5 ,*,*,21,*
 0,1,0,SET Button Pressed Responder,*,*,1,*
 0,1,0,SET Button Pressed Controller,*,*,2,*
 0,1,0,Test Powerline Phase: Sender is on powerline phase A (low cycle),*,*,3,0
@@ -282,8 +282,7 @@ extended,broadcast,all_link,command,category,subcategory,cmd1,cmd2,unofficial
 0,1,0,Heartbeat,0,5,4,*
 0,1,0,Device Status Changed ,*,*,27,*
 0,1,0,SALad Debug Report,*,*,49,*
-0,1,1,Load At/Above Limit (on),7,9,11,0,1
-0,1,1,Load Below Limit (off),7,9,13,0,1
+0,1,1,All-Link Cleanup Report,*,*,*,*,1
 0,0,0,I/O Get Sensor Status,7,0,19,1,1
 0,0,0,I/O Get Relay Status,7,0,19,2,1
 0,0,0,I/O Relay or Sensor Status (open),7,0,0,0,1
