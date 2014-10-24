@@ -1,0 +1,9 @@
+<form script="annotate_event.js">
+  <label>Annotate Event</label>
+  
+  <row>
+    <html>
+		<div id="annotate_event_dialog"></div>
+    </html>
+  </row>
+</form>

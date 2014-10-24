@@ -56,6 +56,36 @@ define([
         },
 
         /**
+         * Get the parameter with the given name.
+         */
+        getParameterByName: function(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            
+            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        },
+        
+        /**
+         * Load the parameters to initialize this class from the URL
+         */
+        loadParamsFromURL: function(){
+        	
+        	this.all_link_group = this.getParameterByName("all_link_group");
+        	this.command = this.getParameterByName("command");
+        	
+        },
+        
+        /**
+         * Get the controls that are necessary for the non-modal form.
+         */
+        getControls: function(){
+        	
+        	return '<div style="margin-top: 12px"><a href="#" class="btn btn-primary" id="save" style="display: inline;">Save</a></div>';
+        },
+        
+        /**
          * Get the template for a modal
          */
         getModalTemplate: function(title, body){
@@ -213,7 +243,7 @@ define([
 	        	
 	        	// Show the non-modal version
 	        	else{
-	        		html = this.getInputTemplate();
+	        		html = this.getInputTemplate() + this.getControls();
 	        	}
 	        	
 	        	// Set the HTML
