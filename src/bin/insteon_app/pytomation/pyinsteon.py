@@ -611,7 +611,7 @@ class InsteonPLM(HAInterface):
                 
             # broadcast all link messages use the to field to store the all-link group number
             if isBroadcast and isAllLink:
-                params['_to'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
+                params['alg_to'] = self.__addressToStr(toIdHigh, toIdMid, toIdLow)
                 
             # otherwise, the address is the actual address
             else:
