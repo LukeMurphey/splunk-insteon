@@ -15,7 +15,7 @@
       <table id="recent_activity_table">
         <title>Recent Activity</title>
         <search>
-          <query>sourcetype=insteon_plm `override_command_with_custom` `override_empty_command_with_raw` `use_non_null_field(from,from_device_name,from)` `use_non_null_field(to,to_device_name,to)` | eval options=cmd1.":".all_link_group | table _time ack from to command command_description options</query>
+          <query>sourcetype=insteon_plm `override_command_with_custom` `use_non_null_field(from,from_device_name,from)` `use_non_null_field(to,to_device_name,to)` `lookup_all_link_group_annotation(command)` `override_empty_command_with_raw` `populate_field_with_all_link_group_number` | eval options=cmd1.":".all_link_group | table _time ack from to command options</query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>
