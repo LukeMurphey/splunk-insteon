@@ -28,6 +28,7 @@ define([
         defaults: {
         	show_modal     : false,
         	command        : null,
+        	device         : null,
         	all_link_group : null
         },
         
@@ -43,6 +44,7 @@ define([
             
             this.show_modal = options.show_modal;
             this.command = options.command;
+            this.device = options.device;
             this.all_link_group = options.all_link_group;
             
             this.already_rendered = false;
@@ -74,6 +76,7 @@ define([
         	
         	this.all_link_group = this.getParameterByName("all_link_group");
         	this.command = this.getParameterByName("command");
+        	this.device = this.getParameterByName("device");
         	
         },
         
@@ -138,29 +141,14 @@ define([
          */
         setupAnnotationSearch: function(){
         	
-            // Make the search that will retrieve the current value
-        	/*
+            // Make the search that will retrieve the current value            
             var retrieveAnnotationSearch = new SearchManager({
                 "id": "get-annotation-search",
                 "earliest_time": "-24h@h",
                 "latest_time": "now",
-                "search":'`get_all_link_group_annotation($command$, $all_link_group$)`',
-                search: "index=_internal | stats count by sourcetype" 
+                "search":'`get_all_link_group_annotation($command$, $all_link_group$, $device$)`',
                 "cancelOnUnload": true,
-                "autostart":false,
-                "app": utils.getCurrentApp(),
-                "auto_cancel": 90,
-                "preview": false
-            }, {tokens: true, tokenNamespace: "insteon_annotations"});
-            */
-            
-            var retrieveAnnotationSearch = new SearchManager({
-                "id": "get-annotation-search",
-                "earliest_time": "-24h@h",
-                "latest_time": "now",
-                "search":'`get_all_link_group_annotation($command$, $all_link_group$)`',
-                "cancelOnUnload": true,
-                "autostart":false,
+                "autostart": false,
                 "app": utils.getCurrentApp(),
                 "auto_cancel": 90,
                 "preview": false
@@ -201,7 +189,7 @@ define([
                 "id": "update-annotations-search",
                 "earliest_time": "-2m@m",
                 "latest_time": "now",
-                "search":'`update_all_link_group_annotation($command$, $all_link_group$, $annotation$)`',
+                "search":'`update_all_link_group_annotation($command$, $all_link_group$, $device$, $annotation$)`',
                 "cancelOnUnload": true,
                 "autostart":false,
                 "app": utils.getCurrentApp(),
@@ -275,6 +263,7 @@ define([
 				            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
 				            tokens.set("command", this.command);
 				            tokens.set("all_link_group", this.all_link_group);
+				            tokens.set("device", this.device);
 				            
 				        	mvc.Components.getInstance('get-annotation-search').startSearch();
 			        	}.bind(this),
@@ -286,9 +275,11 @@ define([
         /**
          * Show the form as a dialog
          */
-        showModal: function(command, all_link_group){
+        showModal: function(command, all_link_group, device){
         	this.command = command;
         	this.all_link_group = all_link_group;
+        	this.device = device;
+        	
         	this.show_modal = true;
         	
         	this.render();
@@ -349,6 +340,7 @@ define([
 	            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
 	            tokens.set("command", this.command);
 	            tokens.set("all_link_group", this.all_link_group);
+	            tokens.set("device", this.device);
 	            tokens.set("annotation", annotation);
 	            
 	        	mvc.Components.getInstance('update-annotations-search').startSearch();

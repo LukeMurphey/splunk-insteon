@@ -1,4 +1,4 @@
-<form script="recent_events.js">
+<form script="recent_events.js" stylesheet="recent_events.css">
   <label>Recent Activity</label>
   <fieldset submitButton="true" autoRun="true">
     <input type="time" token="datetime">
@@ -15,7 +15,7 @@
       <table id="recent_activity_table">
         <title>Recent Activity</title>
         <search>
-          <query>sourcetype=insteon_plm `override_command_with_custom` `use_non_null_field(from,from_device_name,from)` `use_non_null_field(to,to_device_name,to)` `lookup_all_link_group_annotation(command)` `override_empty_command_with_raw` `populate_field_with_all_link_group_number` `get_status` | eval options=cmd1.":".all_link_group | table _time status from to command options</query>
+          <query>sourcetype=insteon_plm `override_command_with_custom` `use_non_null_field(from,from_device_name,from)` `use_non_null_field(to,to_device_name,to)` `lookup_all_link_group_annotation(command)` `override_empty_command_with_raw` `populate_field_with_all_link_group_number` `get_status` | eval options=cmd1.":".all_link_group.":".device | table _time status from to command options</query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>

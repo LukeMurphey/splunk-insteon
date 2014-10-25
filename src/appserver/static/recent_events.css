@@ -1,0 +1,11 @@
+.label-success{
+	background-color: #9ac23c;
+	color: white;
+	line-height: 14px;
+}
+
+.label-important{
+	background-color: #d85d3c;
+	color: white;
+	line-height: 14px;
+}
