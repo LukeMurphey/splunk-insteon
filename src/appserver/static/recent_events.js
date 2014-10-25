@@ -1,12 +1,13 @@
 require.config({
     paths: {
     	annotate_events_cell_renderer: '../app/insteon/js/views/AnnotateEventCellRenderer',
+    	insteon_data_cell_renderer: '../app/insteon/js/views/InsteonDataCellRenderer',
     	annotate_event_view: '../app/insteon/js/views/AnnotateEventView'
     }
 });
 
-require(['jquery','underscore','splunkjs/mvc', 'annotate_events_cell_renderer', 'annotate_event_view', 'splunkjs/mvc/simplexml/ready!'],
-	function($, _, mvc, AnnotateEventCellRenderer, AnnotateEventView){
+require(['jquery','underscore','splunkjs/mvc', 'annotate_events_cell_renderer', 'insteon_data_cell_renderer','annotate_event_view', 'splunkjs/mvc/simplexml/ready!'],
+	function($, _, mvc, AnnotateEventCellRenderer, InsteonDataCellRenderer, AnnotateEventView){
 	
 	    var statusTable = mvc.Components.get('recent_activity_table');
 	    
@@ -17,8 +18,11 @@ require(['jquery','underscore','splunkjs/mvc', 'annotate_events_cell_renderer', 
 	    
 	    statusTable.getVisualization(function(tableView){
 	        tableView.table.addCellRenderer(new AnnotateEventCellRenderer({'annotate_event_view' : annotateEventView}));
+	        tableView.table.addCellRenderer(new InsteonDataCellRenderer());
 	        tableView.table.render();
 	    });
+	    
+	    
 	    
 	}
 );
