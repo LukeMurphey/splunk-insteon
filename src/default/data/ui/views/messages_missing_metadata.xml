@@ -26,7 +26,7 @@
       <table>
         <title>Messages Missing Meta-Data</title>
         <search>
-          <query>sourcetype=insteon_plm category=* subcategory=* NOT command=* `prettify_command(command)` | stats count as event_count by category_name category subcategory command | sort -event_count</query>
+          <query>sourcetype=insteon_plm all_link=0 category=* subcategory=* NOT command=* `prettify_command(command)` | stats count as event_count by category_name category subcategory command | sort -event_count</query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>
