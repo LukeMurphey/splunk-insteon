@@ -70,6 +70,54 @@ define([
         },
         
         /**
+         * Show a dialog message.
+         */
+        showDialog: function(status, message){
+        	
+        	$("#message_dialog", this.$el).html('<div class="alert alert-' + status + '">' +
+                    							'<i class="icon-alert"></i>' + 
+                    							message +
+                    							'</div>');
+        	
+        	$("#message_dialog", this.$el).show();
+        	$("#event_annotation_form", this.$el).hide();
+        	$(".controls", this.$el).hide();
+        	
+        },
+        
+        /**
+         * Hide the dialog.
+         */
+        hideDialog: function(){
+        	$("#message_dialog", this.$el).hide();
+        	$("#event_annotation_form", this.$el).show();
+        	$(".controls", this.$el).show();
+        },
+        
+        /**
+         * Determine if the provided parameters are valid.
+         */
+        areParametersValid: function(){
+        	
+        	// Validate the command
+        	if( !/^([0-9a-f])?[0-9a-f]$/gi.test(this.command)){
+        		return "Command is not valid";
+        	}
+        	
+        	// Validate the device
+        	else if( !/^([0-9a-f]{2,2}.){2,2}[0-9a-f]{2,2}$/gi.test(this.device)){
+        		return "Device is not valid";
+        	}
+        	
+        	// Validate the all-link group
+        	if( !/^[0-9a-f]+$/gi.test(this.all_link_group)){
+        		return "All-link group is not valid";
+        	}
+
+        	return true;
+        },
+        
+        /**
          * Load the parameters to initialize this class from the URL
          */
         loadParamsFromURL: function(){
@@ -84,8 +132,7 @@ define([
          * Get the controls that are necessary for the non-modal form.
          */
         getControls: function(){
-        	
-        	return '<div style="margin-top: 12px"><a href="#" class="btn btn-primary" id="save" style="display: inline;">Save</a></div>';
+        	return '<div class="controls" style="margin-top: 12px"><a href="#" class="btn btn-primary" id="save" style="display: inline;">Save</a></div>';
         },
         
         /**
@@ -129,10 +176,13 @@ define([
          */
         getInputTemplate: function(){
         	
-        	return '<div style="margin-bottom: 32px">Describe this event in order to make it easier to understand the activity (e.g. "garage opening/closing", "TV on", etc.).</div>' +
+        	return  '<div id="message_dialog"></div>' + 
+        			'<span id="event_annotation_form">' + 
+        			'<div style="margin-bottom: 32px">Describe this event in order to make it easier to understand the activity (e.g. "garage opening/closing", "TV on", etc.).</div>' +
         			'<div class="input" id="description-input">' +
                 		'<label>Description</label>' +
-                	'</div>';
+                	'</div>' + 
+                	'</span>';
         
         },
         
@@ -205,12 +255,19 @@ define([
             updateLookupSearch.on("search:done", function() {
                 console.log("Lookup update search completed");
                 this.showSaving(false);
-                $("#annotate-event-modal", this.$el).modal('hide');
+                
+                if( this.show_modal ){
+                	$("#annotate-event-modal", this.$el).modal('hide');
+                }
+                else{
+                	this.showDialog('info', 'Annotation successfully saved');
+                }
             }.bind(this));
             
             updateLookupSearch.on('search:failed', function(properties) {
             	this.showSaving(false);
                 console.log("Lookup update search failed: ", properties);
+                this.showDialog('error', 'Annotation could not be saved');
             }.bind(this));
         },
         
@@ -255,19 +312,29 @@ define([
 	        	this.already_rendered = true;
         	}
         	
-        	this.showLoading();
-        	mvc.Components.getInstance('description-input').val("");
+        	// Validate the parameters
+        	var params_valid = this.areParametersValid();
         	
-        	setTimeout( function(){
-				            // Start the search for getting the current annotation
-				            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
-				            tokens.set("command", this.command);
-				            tokens.set("all_link_group", this.all_link_group);
-				            tokens.set("device", this.device);
-				            
-				        	mvc.Components.getInstance('get-annotation-search').startSearch();
-			        	}.bind(this),
-        	500);
+        	if( params_valid !== true ){
+        		this.showDialog('error', params_valid);
+        	}
+        	else{
+        		
+	        	this.hideDialog();
+	        	this.showLoading();
+	        	mvc.Components.getInstance('description-input').val("");
+	        	
+	        	setTimeout( function(){
+					            // Start the search for getting the current annotation
+					            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
+					            tokens.set("command", this.command);
+					            tokens.set("all_link_group", this.all_link_group);
+					            tokens.set("device", this.device);
+					            
+					        	mvc.Components.getInstance('get-annotation-search').startSearch();
+				        	}.bind(this),
+	        	500);
+        	}
         	
             return this;
         },
