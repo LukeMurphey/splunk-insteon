@@ -3,6 +3,7 @@
   <fieldset submitButton="true" autoRun="true">
   	<input token="device" type="dropdown" searchWhenChanged="true">
 			<label>Device:</label>
+			<default>*</default>
 			<populatingSearch fieldForLabel="device" fieldForValue="address">
 | stats count | eval device="All devices" | eval address="*"
 | inputlookup append=t insteon_devices
