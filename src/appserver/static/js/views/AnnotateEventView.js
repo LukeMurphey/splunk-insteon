@@ -28,7 +28,8 @@ define([
         defaults: {
         	show_modal     : false,
         	command        : null,
-        	device         : null,
+        	from_device    : null,
+        	to_device      : null,
         	all_link_group : null
         },
         
@@ -44,7 +45,8 @@ define([
             
             this.show_modal = options.show_modal;
             this.command = options.command;
-            this.device = options.device;
+            this.from_device = options.from_device;
+            this.to_device = options.to_device;
             this.all_link_group = options.all_link_group;
             
             this.already_rendered = false;
@@ -105,7 +107,7 @@ define([
         	}
         	
         	// Validate the device
-        	else if( !/^([0-9a-f]{2,2}.){2,2}[0-9a-f]{2,2}$/gi.test(this.device)){
+        	else if( !/^([0-9a-f]{2,2}.){2,2}[0-9a-f]{2,2}$/gi.test(this.from_device) && !/^([0-9a-f]{2,2}.){2,2}[0-9a-f]{2,2}$/gi.test(this.to_device) ){
         		return "Device is not valid";
         	}
         	
@@ -124,7 +126,8 @@ define([
         	
         	this.all_link_group = this.getParameterByName("all_link_group");
         	this.command = this.getParameterByName("command");
-        	this.device = this.getParameterByName("device");
+        	this.from_device = this.getParameterByName("from_device");
+        	this.to_device = this.getParameterByName("to_device");
         	
         },
         
@@ -196,7 +199,7 @@ define([
                 "id": "get-annotation-search",
                 "earliest_time": "-24h@h",
                 "latest_time": "now",
-                "search":'`get_all_link_group_annotation($command$, $all_link_group$, $device$)`',
+                "search":'`get_all_link_group_annotation($command$, $all_link_group$, $from_device$, $to_device$)`',
                 "cancelOnUnload": true,
                 "autostart": false,
                 "app": utils.getCurrentApp(),
@@ -223,9 +226,10 @@ define([
             var annotationResults = retrieveAnnotationSearch.data("results");
             
             annotationResults.on("data", function() {
+                var existing_annotation = annotationResults.data().rows[0][4];
                 
-            	console.log("Existing annotation found: " + annotationResults.data().rows[0][3]);
-            	mvc.Components.getInstance('description-input').val(annotationResults.data().rows[0][3]);
+            	console.log("Existing annotation found: " + existing_annotation);
+            	mvc.Components.getInstance('description-input').val(existing_annotation);
             	this.showLoading(false);
             }.bind(this));
         },
@@ -239,7 +243,7 @@ define([
                 "id": "update-annotations-search",
                 "earliest_time": "-2m@m",
                 "latest_time": "now",
-                "search":'`update_all_link_group_annotation($command$, $all_link_group$, $device$, $annotation$)`',
+                "search":'`update_all_link_group_annotation($command$, $all_link_group$, $from_device$, $to_device$, $annotation$)`',
                 "cancelOnUnload": true,
                 "autostart":false,
                 "app": utils.getCurrentApp(),
@@ -329,7 +333,8 @@ define([
 					            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
 					            tokens.set("command", this.command);
 					            tokens.set("all_link_group", this.all_link_group);
-					            tokens.set("device", this.device);
+					            tokens.set("to_device", this.to_device);
+					            tokens.set("from_device", this.from_device);
 					            
 					        	mvc.Components.getInstance('get-annotation-search').startSearch();
 				        	}.bind(this),
@@ -342,10 +347,11 @@ define([
         /**
          * Show the form as a dialog
          */
-        showModal: function(command, all_link_group, device){
+        showModal: function(command, all_link_group, from_device, to_device){
         	this.command = command;
         	this.all_link_group = all_link_group;
-        	this.device = device;
+        	this.from_device = from_device;
+        	this.to_device = to_device;
         	
         	this.show_modal = true;
         	
@@ -407,7 +413,8 @@ define([
 	            var tokens = mvc.Components.getInstance('insteon_annotations', {create: true});
 	            tokens.set("command", this.command);
 	            tokens.set("all_link_group", this.all_link_group);
-	            tokens.set("device", this.device);
+	            tokens.set("to_device", this.to_device);
+	            tokens.set("from_device", this.from_device);
 	            tokens.set("annotation", annotation);
 	            
 	        	mvc.Components.getInstance('update-annotations-search').startSearch();

@@ -36,13 +36,13 @@ define(function(require, exports, module) {
     		 return $.inArray(cell.field, ["options"]) >= 0;
 		 },
 		 
-		 openForm: function(command, link_group, device){
+		 openForm: function(command, link_group, from_device, to_device){
 			
 			 if( this.annotate_event_view === null ){
 				 alert("No annotation view available");
 			 }
 			 else{
-				 this.annotate_event_view.showModal(command, link_group, device);
+				 this.annotate_event_view.showModal(command, link_group, from_device, to_device);
 			 }
 		 },
 		 
@@ -52,12 +52,13 @@ define(function(require, exports, module) {
 			if( cell.value !== null && cell.value !== undefined && cell.value.length > 0){
 				
 				// Parse the value
-				var parse_command_re = /^([0-9]*)[:]([0-9]*)[:]([a-f0-9.]*)$/i;
+				var parse_command_re = /^([0-9]*)[:]([0-9]*)[:]([a-f0-9.]*)[:]([a-f0-9.]*)$/i;
 				
 				var found = cell.value.match(parse_command_re);
 				var command = found[1];
 				var link_group = found[2];
-				var device = found[3];
+				var from_device = found[3];
+				var to_device = found[4];
 				
 				// Render the annotation with the link
 				$td.html(_.template('<label style="float:left"><a href="#"><i style="margin-right: 2px;" class="icon-pencil"></i>Annotate</a></label>', {
@@ -68,7 +69,7 @@ define(function(require, exports, module) {
 				// Setup a click handler to open the form
 				$td.click(function(event){
 					event.stopPropagation();
-					this.openForm(command, link_group, device);
+					this.openForm(command, link_group, from_device, to_device);
 				}.bind(this));
 				
 			}
