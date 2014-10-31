@@ -109,6 +109,19 @@ class InsteonPLM(HAInterface):
                                 '61': { #all_link_send
                                     'responseSize':4,
                                     'callBack':self.__process_StandardInsteonMessageAllLinkSend
+                                  },
+                                
+                                '69': { #Get First ALL-Link Record 
+                                    'responseSize':1,
+                                    'callBack':self.__process_GetFirstAllLinkRecord
+                                  },
+                                '6A': { #Get Next ALL-Link Record
+                                    'responseSize':1,
+                                    'callBack':self.__process_GetNextAllLinkRecord
+                                  },
+                                '57': { #ALL-Link Record Response
+                                    'responseSize':8,
+                                    'callBack':self.__process_AllLinkRecordResponse
                                   }
                             }
         
@@ -233,83 +246,88 @@ class InsteonPLM(HAInterface):
             self.__interfaceRunningEvent.wait(2000)
             
     def run(self):
-        self.__interfaceRunningEvent.set();
         
-        #for checking for duplicate messages received in a row
-        lastPacketHash = None
-        
-        while not self.__shutdownEvent.isSet():
+        try:
+            self.__interfaceRunningEvent.set();
             
-            #check to see if there are any outbound messages to deal with
-            self.__commandLock.acquire()
-            if (len(self.__outboundQueue) > 0) and (time.time() - self.__lastSendTime > self.__intersend_delay):
-                commandHash = self.__outboundQueue.popleft()
-                
-                commandExecutionDetails = self.__outboundCommandDetails[commandHash]
-                
-                bytesToSend = commandExecutionDetails['bytesToSend']
-                self.logger.debug( "> ", hex_dump(bytesToSend, len(bytesToSend)))
-
-                self.__interface.write(bytesToSend)                    
-                
-                self.__pendingCommandDetails[commandHash] = commandExecutionDetails                
-                del self.__outboundCommandDetails[commandHash]
-                
-                self.__lastSendTime = time.time()
-                                
-            self.__commandLock.release()    
+            #for checking for duplicate messages received in a row
+            lastPacketHash = None
             
-            #check to see if there is anything we need to read            
-            firstByte = self.__interface.read(1)            
-            if len(firstByte) == 1:
-                #got at least one byte.  Check to see what kind of byte it is (helps us sort out how many bytes we need to read now)
+            while not self.__shutdownEvent.isSet():
                 
-                if firstByte[0] == '\x02':
-                    #modem command (could be an echo or a response)
-                    #read another byte to sort that out
-                    secondByte = self.__interface.read(1)
-                                        
-                    responseSize = -1
-                    callBack = None
+                #check to see if there are any outbound messages to deal with
+                
+                self.__commandLock.acquire()
+                
+                if (len(self.__outboundQueue) > 0) and (time.time() - self.__lastSendTime > self.__intersend_delay):
+                    commandHash = self.__outboundQueue.popleft()
                     
-                    modemCommand = binascii.hexlify(secondByte).upper()
-                    if self.__modemCommands.has_key(modemCommand):
-                        if self.__modemCommands[modemCommand].has_key('responseSize'):                                                                    
-                            responseSize = self.__modemCommands[modemCommand]['responseSize']                            
-                        if self.__modemCommands[modemCommand].has_key('callBack'):                                                                    
-                            callBack = self.__modemCommands[modemCommand]['callBack']                            
+                    commandExecutionDetails = self.__outboundCommandDetails[commandHash]
+                    
+                    bytesToSend = commandExecutionDetails['bytesToSend']
+                    self.logger.debug( "> ", hex_dump(bytesToSend, len(bytesToSend)))
+    
+                    self.__interface.write(bytesToSend)                    
+                    
+                    self.__pendingCommandDetails[commandHash] = commandExecutionDetails                
+                    del self.__outboundCommandDetails[commandHash]
+                    
+                    self.__lastSendTime = time.time()
+                       
+                self.__commandLock.release()
+                
+                #check to see if there is anything we need to read            
+                firstByte = self.__interface.read(1)            
+                if len(firstByte) == 1:
+                    #got at least one byte.  Check to see what kind of byte it is (helps us sort out how many bytes we need to read now)
+                    
+                    if firstByte[0] == '\x02':
+                        #modem command (could be an echo or a response)
+                        #read another byte to sort that out
+                        secondByte = self.__interface.read(1)
+                                            
+                        responseSize = -1
+                        callBack = None
+                        
+                        modemCommand = binascii.hexlify(secondByte).upper()
+                        if self.__modemCommands.has_key(modemCommand):
+                            if self.__modemCommands[modemCommand].has_key('responseSize'):                                                                    
+                                responseSize = self.__modemCommands[modemCommand]['responseSize']                            
+                            if self.__modemCommands[modemCommand].has_key('callBack'):                                                                    
+                                callBack = self.__modemCommands[modemCommand]['callBack']                            
+                                
+                        if responseSize != -1:                        
+                            remainingBytes = self.__interface.read(responseSize)
                             
-                    if responseSize != -1:                        
-                        remainingBytes = self.__interface.read(responseSize)
-                        
-                        self.logger.debug( "< ", hex_dump(firstByte + secondByte + remainingBytes, len(firstByte + secondByte + remainingBytes)))
-                        
-                        currentPacketHash = hashPacket(firstByte + secondByte + remainingBytes)
-                        if lastPacketHash and lastPacketHash == currentPacketHash:
-                            #duplicate packet.  Ignore
-                            pass
-                        else:                        
-                            if callBack:
-                                callBack(firstByte + secondByte + remainingBytes)    
-                            else:
-                                self.logger.warn( "No callBack defined for for modem command %s" % modemCommand )
-                        
-                        lastPacketHash = currentPacketHash            
-                        
+                            self.logger.debug( "< ", hex_dump(firstByte + secondByte + remainingBytes, len(firstByte + secondByte + remainingBytes)))
+                            
+                            currentPacketHash = hashPacket(firstByte + secondByte + remainingBytes)
+                            if lastPacketHash and lastPacketHash == currentPacketHash:
+                                #duplicate packet.  Ignore
+                                pass
+                            else:                        
+                                if callBack:
+                                    callBack(firstByte + secondByte + remainingBytes)    
+                                else:
+                                    self.logger.warn( "No callBack defined for for modem command %s" % modemCommand )
+                            
+                            lastPacketHash = currentPacketHash            
+                            
+                        else:
+                            self.logger.warn( "No responseSize defined for modem command %s" % modemCommand )          
+                    elif firstByte[0] == '\x15':
+                        self.logger.warn( "Received a Modem NAK!" )
                     else:
-                        self.logger.warn( "No responseSize defined for modem command %s" % modemCommand )          
-                elif firstByte[0] == '\x15':
-                    self.logger.warn( "Received a Modem NAK!" )
+                        self.logger.critical( "Unknown first byte %s" % binascii.hexlify(firstByte[0]) )
                 else:
-                    self.logger.critical( "Unknown first byte %s" % binascii.hexlify(firstByte[0]) )
-            else:
-                #print "Sleeping"
-                #X10 is slow.  Need to adjust based on protocol sent.  Or pay attention to NAK and auto adjust
-                #time.sleep(0.1)
-                time.sleep(0.5)
-
+                    #print "Sleeping"
+                    #X10 is slow.  Need to adjust based on protocol sent.  Or pay attention to NAK and auto adjust
+                    #time.sleep(0.1)
+                    time.sleep(0.5)
             
-        self.__interfaceRunningEvent.clear()
+            self.__interfaceRunningEvent.clear()
+        except:
+            self.logger.exception("Exception occurred within the run loop")
                                 
     def __sendModemCommand(self, modemCommand, commandDataString = None, extraCommandDetails = None):        
         
@@ -408,7 +426,7 @@ class InsteonPLM(HAInterface):
                 
             if realTimeout == 0:
                 timeoutOccured = True
-                    
+        
         if not timeoutOccured:    
             if self.__commandReturnData.has_key(commandHash):
                 return self.__commandReturnData[commandHash]
@@ -416,11 +434,13 @@ class InsteonPLM(HAInterface):
                 return True
         else:            
             #re-queue the command to try again
+            
             self.__commandLock.acquire()
             
             if self.__retryCount[commandHash] >= 5:
                 #too many retries.  Bail out
                 self.__commandLock.release()
+                
                 return False
                 
             self.logger.debug( "Timed out for %s - Requeueing (already had %d retries)" % (commandHash, self.__retryCount[commandHash]) )
@@ -472,16 +492,126 @@ class InsteonPLM(HAInterface):
         else:
             self.logger.debug( "Unable to find pending command details for the following packet:" + hex_dump(responseBytes, len(responseBytes)) )
             
+    def __process_AllLinkRecordResponse(self, responseBytes):
+        
+        if self.__insteonCallback is not None:
+            
+            try:
+                (insteonCommand, recordFlags, all_link_group, toIdHigh, toIdMid, toIdLow, linkData1, linkData2, linkData3) = struct.unpack('xBBBBBBBBB', responseBytes)
+            except:
+                self.logger.exception("Error when parsing bytes in __process_AllLinkRecordResponse")
+                return
+            
+            recordInUse = recordFlags & (1 << 7) == (1 << 7)
+            isController = recordFlags & (1 << 6) == (1 << 6)
+            hasBeenUsedBefore = recordFlags & (1 << 1) == (1 << 1)
+            
+            params = {
+                        'broadcast'          : True,
+                        'direct'             : False,
+                        'all_link'           : True,
+                        'extended'           : False,
+                        'modem_command'      : 'ALL-Link Record Response',
+                        'to'                 : self.__addressToStr(toIdHigh, toIdMid, toIdLow),
+                        'all_link_group'     : all_link_group,
+                        'link_data_1'        : format(linkData1, 'x'),
+                        'link_data_2'        : format(linkData2, 'x'),
+                        'link_data_3'        : format(linkData3, 'x'),
+                        'record_in_use'      : recordInUse,
+                        'controller'         : isController,
+                        'record_used_before' : hasBeenUsedBefore,
+                        'modem_command_code' : format(insteonCommand, 'x')
+            }
+            
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+            
+    def __process_GetFirstAllLinkRecord(self, responseBytes):
+        
+        if self.__insteonCallback is not None:
+            try:
+                (insteonCommand, status) = struct.unpack('xBB', responseBytes)
+            except:
+                self.logger.exception("Error when parsing bytes in __process_GetFirstAllLinkRecord")
+                return
+            
+            nack = False
+            ack = False
+            
+            # NAK
+            if status == int("15", 16):
+                nack = True
+                
+            # ACK
+            elif status == int("6", 16):
+                ack = True
+            
+            params = {
+                        'broadcast'          : True,
+                        'direct'             : False,
+                        'all_link'           : True,
+                        'extended'           : False,
+                        'ack'                : ack,
+                        'nack'               : nack,
+                        'modem_command'      : 'Get First ALL-Link Record',
+                        'modem_command_code' : format(insteonCommand, 'x')
+            }
+            
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+            
+    def __process_GetNextAllLinkRecord(self, responseBytes):
+        
+        if False and self.__insteonCallback is not None:
+            try:
+                (insteonCommand, status) = struct.unpack('xBB', responseBytes)
+            except:
+                self.logger.exception("Error when parsing bytes in __process_GetFirstAllLinkRecord")
+                return
+            
+            # NAK
+            if status == int("15", 16):
+                nack = True
+                
+            # ACK
+            elif status == int("6", 16):
+                ack = True
+            
+            params = {
+                        'broadcast'          : True,
+                        'direct'             : False,
+                        'all_link'           : True,
+                        'extended'           : False,
+                        'ack'                : ack,
+                        'nack'               : nack,
+                        'modem_command'      : 'Get Next ALL-Link Record',
+                        'modem_command_code' : format(insteonCommand, 'x')
+            }
+            
+            #run the callback if one is defined
+            self.__insteonCallback( params )
+            
     def __process_StandardInsteonMessageAllLinkSend(self, responseBytes):
 
         if self.__insteonCallback is not None:
             self.logger.debug( "__process_StandardInsteonMessageAllLinkSend packet:" + hex_dump(responseBytes, len(responseBytes)) )
             
             try:
-                (insteonCommand, all_link_group, command1, command2) = struct.unpack('xBBBBx', responseBytes)
+                (insteonCommand, all_link_group, command1, command2, status) = struct.unpack('xBBBBB', responseBytes)
             except:
                 self.logger.exception("Error when parsing bytes in __process_StandardInsteonMessageAllLinkSend")
                 return
+            
+            nack = False
+            ack = False
+            
+            # NAK
+            if status == int("15", 16):
+                nack = True
+                
+            # ACK
+            elif status == int("6", 16):
+                ack = True
             
             #self.logger.debug("__process_StandardInsteonMessageAllLinkSend:" + str(len(responseBytes)))
             params = {
@@ -490,8 +620,8 @@ class InsteonPLM(HAInterface):
                         'cmd2'               : format(command2, 'x'),
                         'broadcast'          : True,
                         'direct'             : False,
-                        'ack'                : False,
-                        'nack'               : False,
+                        'ack'                : ack,
+                        'nack'               : nack,
                         'all_link'           : True,
                         'extended'           : False,
                         'modem_command'      : 'ALL-Link Send',
@@ -513,13 +643,24 @@ class InsteonPLM(HAInterface):
                 self.logger.exception("Error when parsing bytes in __process_StandardInsteonMessageAllLinkCleanStatus")
                 return
             
+            nack = False
+            ack = False
+            
+            # NAK
+            if status == int("15", 16):
+                nack = True
+                
+            # ACK
+            elif status == int("6", 16):
+                ack = True
+            
             #self.logger.debug("__process_StandardInsteonMessageAllLinkSend:" + str(len(responseBytes)))
             params = {
                         'status'             : status,
                         'broadcast'          : True,
                         'direct'             : False,
-                        'ack'                : False,
-                        'nack'               : False,
+                        'ack'                : ack,
+                        'nack'               : nack,
                         'all_link'           : True,
                         'extended'           : False,
                         'modem_command'      : 'ALL-Link Cleanup',
@@ -807,7 +948,17 @@ class InsteonPLM(HAInterface):
         
         
         
-    #public methods        
+    #public methods
+    def getFirstAllLinkRecord(self, timeout = None):        
+        commandExecutionDetails = self.__sendModemCommand('69')
+          
+        #return self.__waitForCommandToFinish(commandExecutionDetails, timeout = timeout)
+    
+    def getNextAllLinkRecord(self, timeout = None):        
+        commandExecutionDetails = self.__sendModemCommand('6A')
+            
+        #return self.__waitForCommandToFinish(commandExecutionDetails, timeout = timeout) 
+    
     def getPLMInfo(self, timeout = None):        
         commandExecutionDetails = self.__sendModemCommand('60')
             
