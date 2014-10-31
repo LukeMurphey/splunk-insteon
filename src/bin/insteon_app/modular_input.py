@@ -860,6 +860,117 @@ class ModularInput():
         
         raise Exception("Run function was not implemented")
     
+    @staticmethod
+    def is_expired( last_run, interval, cur_time=None ):
+        """
+        Indicates if the last run time is expired based on the value of the last_run parameter.
+        
+        Arguments:
+        last_run -- The time that the analysis was last done
+        interval -- The interval that the analysis ought to be done (as an integer)
+        cur_time -- The current time (will be automatically determined if not provided)
+        """
+        
+        if cur_time is None:
+            cur_time = time.time()
+        
+        if (last_run + interval) < cur_time:
+            return True
+        else:
+            return False
+    
+    @classmethod
+    def last_ran( cls, checkpoint_dir, stanza ):
+        """
+        Determines the date that the analysis was last performed for the given input (denoted by the stanza name).
+        
+        Arguments:
+        checkpoint_dir -- The directory where checkpoints ought to be saved
+        stanza -- The stanza of the input being used
+        """
+        
+        checkpoint_dict = cls.get_checkpoint_data()
+        
+        if checkpoint_dict is None or 'last_run' not in checkpoint_dict:
+            return None
+        else:
+            return checkpoint_dict['last_run']
+    
+    @classmethod
+    def needs_another_run(cls, checkpoint_dir, stanza, interval, cur_time=None):
+        """
+        Determines if the given input (denoted by the stanza name) ought to be executed.
+        
+        Arguments:
+        checkpoint_dir -- The directory where checkpoints ought to be saved
+        stanza -- The stanza of the input being used
+        interval -- The frequency that the analysis ought to be performed
+        cur_time -- The current time (will be automatically determined if not provided)
+        """
+        
+        try:
+            last_ran = cls.last_ran(checkpoint_dir, stanza)
+            
+            return cls.is_expired(last_ran, interval, cur_time)
+            
+        except IOError as e:
+            # The file likely doesn't exist
+            return True
+        
+        except ValueError as e:
+            # The file could not be loaded
+            return True
+        
+        # Default return value
+        return True
+    
+    @classmethod
+    def get_checkpoint_data(cls, checkpoint_dir, stanza):
+        """
+        Gets the checkpoint for this input (if it exists)
+        
+        Arguments:
+        checkpoint_dir -- The directory where checkpoints ought to be saved
+        stanza -- The stanza of the input being used
+        """
+        
+        fp = None
+        
+        try:
+            fp = open( cls.get_file_path(checkpoint_dir, stanza) )
+            checkpoint_dict = json.load(fp)
+                
+            return checkpoint_dict
+    
+        finally:
+            if fp is not None:
+                fp.close()
+             
+    @classmethod   
+    def save_checkpoint_data(cls, checkpoint_dir, stanza, data):
+        """
+        Save the checkpoint state.
+        
+        Arguments:
+        checkpoint_dir -- The directory where checkpoints ought to be saved
+        stanza -- The stanza of the input being used
+        data -- A dictionary with the data to save
+        """
+        
+        fp = None
+        
+        try:
+            fp = open( cls.get_file_path(checkpoint_dir, stanza), 'w' )
+            
+            json.dump(data, fp)
+            
+        except Exception:
+            logger.exception("Failed to save checkpoint directory") 
+            
+        finally:
+            if fp is not None:
+                fp.close()
+    
     def do_shutdown(self):
         """
         This function is called when the modular input should shut down.
