@@ -115,6 +115,21 @@ class InsteonPLMInput(ModularInput):
         except:
             logger.exception("Error when attempting to process an Insteon message")
     
+    def getAllLinkRecords(self):
+        logger.info("Getting all link records")
+        self.plm.getFirstAllLinkRecord()
+        time.sleep(5)
+        self.plm.getNextAllLinkRecord()
+        time.sleep(5)
+        
+        # Retrieve each all record request
+        count = 0
+        while not self.plm.isAllRecordRequestDone() and count < 50:
+            self.plm.getNextAllLinkRecord()
+            time.sleep(5)
+            count = count + 1
+        
+        logger.info("Done getting all link records")
     def run(self, stanza, cleaned_params, input_config):
         
         # Make the parameters
@@ -140,11 +155,18 @@ class InsteonPLMInput(ModularInput):
                 self.plm.onReceivedInsteon(self.insteon_received)
                 
                 logger.info("Established a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
+                
+                time.sleep(30)
+                self.getAllLinkRecords()
+                
+            except socket.error as e:
+                logger.warning("Network error while attempting to start a PLM connection, plm_host=%s, plm_port=%r, message=%s", plm_host, plm_port, str(e))
+            
             except:
                 logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
 if __name__ == '__main__':
-    logger.info("Starting the input")
+    
     try:
         insteon_input = InsteonPLMInput()
         insteon_input.execute()

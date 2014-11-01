@@ -110,7 +110,6 @@ class InsteonPLM(HAInterface):
                                     'responseSize':4,
                                     'callBack':self.__process_StandardInsteonMessageAllLinkSend
                                   },
-                                
                                 '69': { #Get First ALL-Link Record 
                                     'responseSize':1,
                                     'callBack':self.__process_GetFirstAllLinkRecord
@@ -119,9 +118,13 @@ class InsteonPLM(HAInterface):
                                     'responseSize':1,
                                     'callBack':self.__process_GetNextAllLinkRecord
                                   },
-                                '57': { #ALL-Link Record Response
+                                 '57': { #ALL-Link Record Response
                                     'responseSize':8,
                                     'callBack':self.__process_AllLinkRecordResponse
+                                  },
+                                 '7D': {
+                                    'responseSize':2,
+                                    'callBack':self.__process_command_7D
                                   }
                             }
         
@@ -236,7 +239,9 @@ class InsteonPLM(HAInterface):
         self.__interface = interface   
 
         self.__x10Callback = None
-        self.__insteonCallback = None    
+        self.__insteonCallback = None
+        
+        self.__all_record_request_nack = False
     
     def shutdown(self):
         if self.__interfaceRunningEvent.isSet():
@@ -294,7 +299,9 @@ class InsteonPLM(HAInterface):
                             if self.__modemCommands[modemCommand].has_key('responseSize'):                                                                    
                                 responseSize = self.__modemCommands[modemCommand]['responseSize']                            
                             if self.__modemCommands[modemCommand].has_key('callBack'):                                                                    
-                                callBack = self.__modemCommands[modemCommand]['callBack']                            
+                                callBack = self.__modemCommands[modemCommand]['callBack']
+                                
+                        
                                 
                         if responseSize != -1:                        
                             remainingBytes = self.__interface.read(responseSize)
@@ -492,6 +499,9 @@ class InsteonPLM(HAInterface):
         else:
             self.logger.debug( "Unable to find pending command details for the following packet:" + hex_dump(responseBytes, len(responseBytes)) )
             
+    def __process_command_7D(self, responseBytes):
+        pass
+            
     def __process_AllLinkRecordResponse(self, responseBytes):
         
         if self.__insteonCallback is not None:
@@ -562,7 +572,7 @@ class InsteonPLM(HAInterface):
             
     def __process_GetNextAllLinkRecord(self, responseBytes):
         
-        if False and self.__insteonCallback is not None:
+        if self.__insteonCallback is not None:
             try:
                 (insteonCommand, status) = struct.unpack('xBB', responseBytes)
             except:
@@ -570,8 +580,14 @@ class InsteonPLM(HAInterface):
                 return
             
             # NAK
+            nack = False
+            ack = False
+            self.__all_record_request_nack = False
+            
             if status == int("15", 16):
                 nack = True
+                self.__all_record_request_nack = True
+                self.logger.debug("Last all-link record observed")
                 
             # ACK
             elif status == int("6", 16):
@@ -954,7 +970,11 @@ class InsteonPLM(HAInterface):
           
         #return self.__waitForCommandToFinish(commandExecutionDetails, timeout = timeout)
     
-    def getNextAllLinkRecord(self, timeout = None):        
+    def isAllRecordRequestDone(self):
+        return self.__all_record_request_nack
+    
+    def getNextAllLinkRecord(self, timeout = None):
+        self.__all_record_request_nack = False
         commandExecutionDetails = self.__sendModemCommand('6A')
             
         #return self.__waitForCommandToFinish(commandExecutionDetails, timeout = timeout) 
