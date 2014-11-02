@@ -81,6 +81,7 @@ class InsteonPLMInput(ModularInput):
         self.plm = None
         self.plm_connection_restart = False
         self.interface = None
+        self.running_all_link_dump = False
         
         # These are values that are persisted so that the PLM callback has the data to output the event correctly
         self.sourcetype = "insteon_plm"
@@ -121,21 +122,28 @@ class InsteonPLMInput(ModularInput):
         except:
             logger.exception("Error when attempting to process an Insteon message")
     
-    def getAllLinkRecords(self):
-        logger.info("Getting all link records")
-        self.plm.getFirstAllLinkRecord()
-        time.sleep(5)
-        self.plm.getNextAllLinkRecord()
-        time.sleep(5)
+    def getAllLinkRecords(self, checkpoint_dir, stanza):
+        self.running_all_link_dump = True
         
-        # Retrieve each all record request
-        count = 0
-        while not self.plm.isAllRecordRequestDone() and count < 50:
+        try:
+            logger.info("Getting all link records")
+            self.plm.getFirstAllLinkRecord()
+            time.sleep(5)
             self.plm.getNextAllLinkRecord()
             time.sleep(5)
-            count = count + 1
+            
+            # Retrieve each all record request
+            count = 0
+            while not self.plm.isAllRecordRequestDone() and count < 50:
+                self.plm.getNextAllLinkRecord()
+                time.sleep(5)
+                count = count + 1
+            
+            self.save_checkpoint_data(checkpoint_dir, stanza, {'last_run' : int(time.time()) })
+            logger.info("Done getting all link records")
         
-        logger.info("Done getting all link records")
+        finally:
+            self.running_all_link_dump = False
         
     def onErrorCallback(self, exception):
         logger.warning("Error detected; connection will be restarted")
@@ -149,24 +157,35 @@ class InsteonPLMInput(ModularInput):
         
         sourcetype              = cleaned_params.get("sourcetype", "insteon_plm")
         index                   = cleaned_params.get("index", "default")
-        all_link_dump_frequency = cleaned_params.get("all_link_dump_frequency", "86400")
+        all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", "86400")
         source                  = stanza
+        
+        # Make sure that all-link dump freqneuc
+        try:
+            all_link_dump_interval = int(all_link_dump_interval)
+        except:
+            logger.error("all_link_dump_interval is invalid; will default to 86400 (24 hours)")
+            all_link_dump_interval = 86400
         
         #logger.debug("Entering the modular input run loop")
         
-        # Restart the PLM connection if requested
-        if self.plm is not None and self.plm_connection_restart:
-            logger.info("Restarting the PLM connection")
-            self.do_shutdown()
-            self.plm = None
-        
-        # Start the connection to the PLM to begin intercepting messages
-        if self.plm is None:
+        try:
+            # Run a dump of the all-link database if needed 
+            if self.plm is not None and not self.running_all_link_dump and all_link_dump_interval > 0 and self.needs_another_run(input_config.checkpoint_dir, stanza, all_link_dump_interval):
+                self.getAllLinkRecords(input_config.checkpoint_dir, stanza)
             
-            self.plm_connection_restart = False
-            logger.info("Initiating a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
+            # Restart the PLM connection if requested
+            if self.plm is not None and self.plm_connection_restart:
+                logger.info("Restarting the PLM connection")
+                self.do_shutdown()
+                self.plm = None
             
-            try:
+            # Start the connection to the PLM to begin intercepting messages
+            if self.plm is None:
+                
+                self.plm_connection_restart = False
+                logger.info("Initiating a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
+                
                 self.interface = TCP(plm_host, plm_port)
                 self.plm = InsteonPLM(self.interface)
                 self.plm.setLogger(logger)
@@ -179,17 +198,11 @@ class InsteonPLMInput(ModularInput):
                 
                 logger.info("Established a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
                 
-            except socket.error as e:
-                logger.warning("Network error while attempting to start a PLM connection, plm_host=%s, plm_port=%r, message=%s", plm_host, plm_port, str(e))
+        except socket.error as e:
+            logger.warning("Network error while attempting to start a PLM connection, plm_host=%s, plm_port=%r, message=%s", plm_host, plm_port, str(e))
             
-            except Exception as e:
-                logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
-                
-        """
-        if self.plm is not None:          
-            time.sleep(30)
-            self.getAllLinkRecords()
-        """
+        except Exception as e:
+            logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
             
 if __name__ == '__main__':
     

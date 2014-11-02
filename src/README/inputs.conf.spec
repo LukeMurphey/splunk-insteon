@@ -6,3 +6,7 @@ plm_host = <value>
 
 plm_port = <value>
 * The port number of the Insteon PLM (usually 9761)
+
+all_link_dump_interval = <value>
+* The interval to perform all-link database dumps
+* Setting to 0 will disable it

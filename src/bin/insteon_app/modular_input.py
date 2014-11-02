@@ -8,6 +8,8 @@ import sys
 import re
 import time
 import os
+import hashlib
+import json
 
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
 
@@ -889,7 +891,7 @@ class ModularInput():
         stanza -- The stanza of the input being used
         """
         
-        checkpoint_dict = cls.get_checkpoint_data()
+        checkpoint_dict = cls.get_checkpoint_data(checkpoint_dir, stanza)
         
         if checkpoint_dict is None or 'last_run' not in checkpoint_dict:
             return None
@@ -924,6 +926,18 @@ class ModularInput():
         # Default return value
         return True
     
+    @staticmethod
+    def get_file_path( checkpoint_dir, stanza ):
+        """
+        Get the path to the checkpoint file.
+        
+        Arguments:
+        checkpoint_dir -- The directory where checkpoints ought to be saved
+        stanza -- The stanza of the input being used
+        """
+        
+        return os.path.join( checkpoint_dir, hashlib.sha224(stanza).hexdigest() + ".json" )
+    
     @classmethod
     def get_checkpoint_data(cls, checkpoint_dir, stanza):
         """
@@ -939,7 +953,7 @@ class ModularInput():
         try:
             fp = open( cls.get_file_path(checkpoint_dir, stanza) )
             checkpoint_dict = json.load(fp)
-                
+            
             return checkpoint_dict
     
         finally:
