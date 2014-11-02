@@ -242,6 +242,7 @@ class InsteonPLM(HAInterface):
         self.__insteonCallback = None
         
         self.__all_record_request_nack = False
+        self.__run_loop_error_callback = None
     
     def shutdown(self):
         if self.__interfaceRunningEvent.isSet():
@@ -333,8 +334,12 @@ class InsteonPLM(HAInterface):
                     time.sleep(0.5)
             
             self.__interfaceRunningEvent.clear()
-        except:
+        except Exception as e:
             self.logger.exception("Exception occurred within the run loop")
+            
+            # Call the error callback handler so that the caller can deal with the mess            
+            if self.__run_loop_error_callback is not None:
+                self.__run_loop_error_callback(e)
                                 
     def __sendModemCommand(self, modemCommand, commandDataString = None, extraCommandDetails = None):        
         
@@ -1002,6 +1007,9 @@ class InsteonPLM(HAInterface):
 
     def onReceivedInsteon(self, callback):
         self.__insteonCallback = callback
+        
+    def onRunLoopError(self, callback):
+        self.__run_loop_error_callback = callback
             
     def idRequest(self, deviceId, timeout = None):                
         commandExecutionDetails = self.__sendStandardP2PInsteonCommand(deviceId, '10', '00')                        
