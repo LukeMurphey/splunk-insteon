@@ -160,7 +160,7 @@ class InsteonPLMInput(ModularInput):
         all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", "86400")
         source                  = stanza
         
-        # Make sure that all-link dump freqneuc
+        # Make sure that all-link dump frequency is valid
         try:
             all_link_dump_interval = int(all_link_dump_interval)
         except:
