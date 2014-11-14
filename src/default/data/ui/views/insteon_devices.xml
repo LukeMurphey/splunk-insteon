@@ -1,6 +1,27 @@
 <form>
   <label>Devices</label>
-  <fieldset submitButton="false" autoRun="true">
+  <fieldset submitButton="true" autoRun="true">
+  <!-- 
+    <input token="device" type="dropdown" searchWhenChanged="true">
+			<label>Device:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+			| stats count | eval device="All devices" | eval address="*" | inputlookup append=t insteon_devices | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+	-->
+  	<input token="room" type="dropdown" searchWhenChanged="true">
+			<label>Room:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
+	</input>
+	
+    <input type="time" token="datetime">
+      <label></label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
   </fieldset>
   
   <row>
@@ -17,14 +38,24 @@
       <table>
         <title>Devices</title>
         <search>
-          <query>| inputlookup append=t insteon_devices | lookup insteon_device_types category subcategory OUTPUT category_name description | eval category=category_name | table address category description name room</query>
+          <query>
+          sourcetype=insteon_plm from_room=$form.room$
+          | eval address=from
+          | chart last(category) as category last(subcategory) as subcategory last(from_device_name) as name last(from_room) as room sparkline count as event_count latest(_time) as last_seen by address
+          | lookup insteon_device_types category subcategory OUTPUT category_name description as device_description
+          | fields address name room category_name device_description sparkline event_count last_seen
+          | `timesince(last_seen,last_seen)`
+          | sort -event_count
+          </query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
         </search>
         <option name="wrap">true</option>
         <option name="rowNumbers">false</option>
         <option name="dataOverlayMode">none</option>
         <option name="count">10</option>
         <drilldown>
-				<link><![CDATA[/app/insteon/search/?q=search%20(from%3D"$row.address$"%20OR%20to%3D"$row.address$")&earliest=$earliest$&latest=$latest$]]></link>
+				<link><![CDATA[/app/insteon/search/?q=search%20(from%3D"$row.address$"%20OR%20to%3D"$row.address$")%20%60get_command_info%60&earliest=$earliest$&latest=$latest$]]></link>
 		</drilldown>
       </table>
     </panel>
