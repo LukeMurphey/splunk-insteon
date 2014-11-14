@@ -157,7 +157,7 @@ class InsteonPLMInput(ModularInput):
         
         sourcetype              = cleaned_params.get("sourcetype", "insteon_plm")
         index                   = cleaned_params.get("index", "default")
-        all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", "86400")
+        all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", 0)
         source                  = stanza
         
         # Make sure that all-link dump frequency is valid
