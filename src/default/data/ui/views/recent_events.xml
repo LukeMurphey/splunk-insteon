@@ -1,16 +1,17 @@
 <form script="recent_events.js" stylesheet="recent_events.css">
-  <label>Recent Activity</label>
+  <label>Activity</label>
   <fieldset submitButton="true" autoRun="true">
   	<input token="device" type="dropdown" searchWhenChanged="true">
 			<label>Device:</label>
 			<default>*</default>
 			<populatingSearch fieldForLabel="device" fieldForValue="address">
-| stats count | eval device="All devices" | eval address="*"
-| inputlookup append=t insteon_devices
-| lookup insteon_device_types category subcategory OUTPUT category_name description
-| eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device )
-| stats count(device) by device, address
-			</populatingSearch>
+			| stats count | eval device="All devices" | eval address="*" | inputlookup append=t insteon_devices | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+	
+  	<input token="room" type="dropdown" searchWhenChanged="true">
+			<label>Room:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
 	</input>
 	
     <input type="time" token="datetime">
@@ -28,7 +29,8 @@
         <title>Recent Activity</title>
         <search>
           <query>
-          sourcetype=insteon_plm (to=$form.device$ OR from=$form.device$)
+          sourcetype=insteon_plm (to=$form.device$ OR from=$form.device$) (to_room=$form.room$ OR from_room=$form.room$)
+          `get_command_info`
           `override_command_with_custom`
           `lookup_all_link_group_annotation(command,from,to)`
           `lookup_all_link_group_annotation(command,from)`
@@ -36,6 +38,7 @@
           | eval options=cmd1.":".all_link_group.":".if(isnull(from),"",from).":".if(isnull(to),"",to)
           `use_non_null_field(from,from_device_name,from)`
           `use_non_null_field(to,to_device_name,to)`
+          `override_empty_command_with_modem_command`
           `override_empty_command_with_raw`
           `get_status`
           `populate_field_with_all_link_group_number`
