@@ -1,0 +1,66 @@
+<form>
+  <label>Sensors</label>
+  <fieldset submitButton="true" autoRun="true">
+  	<input token="device" type="dropdown" searchWhenChanged="true">
+			<label>Device:</label>
+			<default>*</default><!-- 
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+| stats count | eval device="All devices" | eval address="*"
+| inputlookup append=t insteon_devices
+| search subcategory=8 category=10
+| lookup insteon_device_types category subcategory OUTPUT category_name description
+| eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device )
+| stats count(device) by device, address
+			</populatingSearch>-->
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+			| stats count | eval device="All devices" | eval address="*" | inputlookup append=t insteon_devices | search (subcategory=8 category=10) OR device="All devices" | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+	
+  	<input token="room" type="dropdown" searchWhenChanged="true">
+			<label>Room:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
+	</input>
+	
+    <input type="time" token="datetime">
+      <label></label>
+      <default>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  
+  <row>
+    <panel>
+      <table id="leak_sensor_table">
+        <title>Leak Sensors</title>
+        <search>
+          <query>
+          sourcetype=insteon_plm
+          subcategory=8 category=10 modem_command_code=50 all_link=1 `get_command_info`
+          | stats last(command) as command last(_time) as last_seen last(subcategory) as subcategory last(category) as category by from
+          | eval address=from
+          | eval wet=if(like(command, "%wet%"),1,0)
+          | inputlookup insteon_devices append=t
+          | search subcategory=8 category=10 address="$form.device$"
+          | stats first(wet) as wet first(last_seen) as last_seen last(name) as name last(room) as room by address
+          | fillnull wet value="-1"
+          | eval is_dead=case(now()-last_seen > 90000,1, isnull(last_seen), 1, 1 = 1, 0)
+          | `timesince(last_seen,last_seen)`
+          | fillnull last_seen value="never"
+          | search room="$form.room$"
+          | fields address wet name room is_dead last_seen
+		 </query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">20</option>
+      </table>
+    </panel>
+  </row>
+</form>
