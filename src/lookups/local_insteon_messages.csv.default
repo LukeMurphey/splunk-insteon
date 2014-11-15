@@ -1,3 +1,1 @@
-extended,broadcast,all_link,device,category,subcategory,cmd1,cmd2,command,description
-0,0,0,30.46.f6,*,*,0,ff,,Garage opening/closing
-0,1,1,30.46.f6,*,*,11,0,,Garage closed
+extended,broadcast,all_link,all_link_group,device,category,subcategory,cmd1,cmd2,command,description
