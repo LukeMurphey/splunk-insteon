@@ -1006,7 +1006,7 @@ class ModularInput():
         while True:
                                 
             # If Splunk is no longer the parent process, then it has shut down and this input needs to terminate
-            if os.getppid() == 1:
+            if hasattr(os, 'getppid') and os.getppid() == 1:
                 logging.warn("Modular input is no longer running under Splunk; script will now exit")
                 self.do_shutdown()
                 sys.exit(2)
