@@ -61,12 +61,16 @@ class Lookup(dict):
 class Interface(object):
     def __init__(self):
         super(Interface,self).__init__()
-
+        self.logger = None
+        
     def read(self,bufferSize):
         raise NotImplemented
 
     def write(self,data):
         raise NotImplemented
+
+    def setLogger(self, logger):
+        self.logger = logger
     
 class Interface_old(threading.Thread):
     def __init__(self, host, port):
@@ -83,11 +87,14 @@ class Interface_old(threading.Thread):
         return None    
 
 class TCP(Interface):
-    def __init__(self, host, port):
+    def __init__(self, host, port, logger=None):
         super(TCP, self).__init__()        
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print"connect %s:%s" % (host, port)
         self.__s.connect((host, port))
+        self.__s.setblocking(False)
+        
+        self.setLogger(logger)
         
     def write(self,data):
         "Send raw binary"
@@ -98,13 +105,15 @@ class TCP(Interface):
         "Read raw data"
         data = ''
         try:
-            data = self.__s.recv(bufferSize,socket.MSG_DONTWAIT)
+            data = self.__s.recv(bufferSize)
         except socket.error, ex:
             pass
         except Exception, ex:
-            print "Exception:", type(ex) 
-            pass
-#            print traceback.format_exc()
+            if(self.logger is not None):
+                self.logger.exception("Exception raised while attempting to read from the socket")
+            else:
+                print "Exception:", type(ex) 
+            
         return data
         
 class TCP_old(Interface):
