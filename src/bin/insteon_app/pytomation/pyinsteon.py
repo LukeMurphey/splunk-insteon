@@ -283,7 +283,8 @@ class InsteonPLM(HAInterface):
                 self.__commandLock.release()
                 
                 #check to see if there is anything we need to read            
-                firstByte = self.__interface.read(1)            
+                firstByte = self.__interface.read(1)
+                
                 if len(firstByte) == 1:
                     #got at least one byte.  Check to see what kind of byte it is (helps us sort out how many bytes we need to read now)
                     
@@ -301,9 +302,9 @@ class InsteonPLM(HAInterface):
                                 responseSize = self.__modemCommands[modemCommand]['responseSize']                            
                             if self.__modemCommands[modemCommand].has_key('callBack'):                                                                    
                                 callBack = self.__modemCommands[modemCommand]['callBack']
-                                
                         
-                                
+                        
+                        
                         if responseSize != -1:                        
                             remainingBytes = self.__interface.read(responseSize)
                             
@@ -1004,6 +1005,9 @@ class InsteonPLM(HAInterface):
 
     def setLogger(self, logger):
         self.logger = logger
+        
+        if self.__interface is not None:
+            self.__interface.setLogger(logger)
 
     def onReceivedInsteon(self, callback):
         self.__insteonCallback = callback
