@@ -18,11 +18,11 @@ def setup_logger():
     Setup a logger.
     """
     
-    logger = logging.getLogger('insteon_modular_input')
+    logger = logging.getLogger('insteon_plm_modular_input')
     logger.propagate = False # Prevent the log messages from being duplicated in the python.log file
     logger.setLevel(logging.DEBUG)
     
-    file_handler = handlers.RotatingFileHandler(make_splunkhome_path(['var', 'log', 'splunk', 'insteon_modular_input.log']), maxBytes=25000000, backupCount=5)
+    file_handler = handlers.RotatingFileHandler(make_splunkhome_path(['var', 'log', 'splunk', 'insteon_plm_modular_input.log']), maxBytes=25000000, backupCount=5)
     formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
     file_handler.setFormatter(formatter)
     
