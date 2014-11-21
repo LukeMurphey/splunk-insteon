@@ -52,9 +52,16 @@ define(function(require, exports, module) {
 			if( cell.value !== null && cell.value !== undefined && cell.value.length > 0){
 				
 				// Parse the value
-				var parse_command_re = /^([0-9]*)[:]([0-9]*)[:]([a-f0-9.]*)[:]([a-f0-9.]*)$/i;
+				var parse_command_re = /^([0-9]+)[:]([0-9]+)[:]([a-f0-9.]*)[:]([a-f0-9.]*)$/i;
 				
 				var found = cell.value.match(parse_command_re);
+				
+				// Stop if the cell value could not be parsed
+				if( found === null ){
+					$td.html("");
+					return;
+				}
+				
 				var command = found[1];
 				var link_group = found[2];
 				var from_device = found[3];
