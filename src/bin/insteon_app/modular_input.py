@@ -1027,8 +1027,12 @@ class ModularInput():
                     else:
                         raise e
                     
-            time.sleep(self.sleep_interval)
-    
+            # Sleep for a bit
+            try:
+                time.sleep(self.sleep_interval)
+            except IOError:
+                pass #Exceptions such as KeyboardInterrupt and IOError can be thrown in order to interrupt sleep calls
+                
     def get_validation_data(self, in_stream=sys.stdin):
         """
         Get the validation data from standard input
