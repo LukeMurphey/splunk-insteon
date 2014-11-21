@@ -115,6 +115,16 @@ class TCP(Interface):
                 print "Exception:", type(ex) 
             
         return data
+    
+    def shutdown(self):
+        "Shut down the socket"
+        try:
+            if self.__s is not None:
+                self.__s.shutdown(socket.SHUT_RDWR)
+                self.__s.close()
+        except:
+            self.logger.exception("Exception generated while shutting down the interface socket")
+        
         
 class TCP_old(Interface):
     def __init__(self, host, port):

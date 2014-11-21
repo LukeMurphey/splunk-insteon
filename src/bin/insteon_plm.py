@@ -94,12 +94,19 @@ class InsteonPLMInput(ModularInput):
             
     def do_shutdown(self):
         
-        if self.plm is not None:
-            self.plm.shutdown()
-            
+        # Shut down the PLM
+        try:
+            if self.plm is not None:
+                self.plm.shutdown()
+        except:
+            logger.exception("Exception generated while shutting down the PLM")
+        
+        # Shut down the TCP interface
+        try:
             if self.interface is not None:
-                self.interface.__s.shutdown(1)
-                self.interface.__s.close()   
+                self.interface.shutdown()
+        except:
+            logger.exception("Exception generated while shutting down the PLM interface")
     
     def insteon_received(self, params):
         
