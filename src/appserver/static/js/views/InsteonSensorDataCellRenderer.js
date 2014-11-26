@@ -16,13 +16,13 @@ define(function(require, exports, module) {
     var InsteonDataCellRenderer = BaseCellRenderer.extend({
     	
     	 canRender: function(cell) {
-    		 return $.inArray(cell.field, ["wet", "status"]) >= 0;
+    		 return $.inArray(cell.field, ["wet", "status", "last_seen"]) >= 0;
 		 },
 		 
 		 render: function($td, cell) {
 			 
 			 // Handle wet state
-			 if(cell.field === "wet" && cell.value === "0" || cell.value === 1 || cell.value === "wet"){
+			 if(cell.field === "status" && cell.value === "1" || cell.value === 1 || cell.value === "wet"){
 				 $td.html('<span style="display: inline-block; ' + 
 						 'padding-left: 20px;' + 
 						 'width: 20px;' + 
@@ -35,15 +35,34 @@ define(function(require, exports, module) {
 			 }
 			 
 			 //Handle dry state
-			 else if(cell.field === "wet" && cell.value === "0" || cell.value === 0 || cell.value === "dry"){
+			 else if(cell.field === "status" && cell.value === "0" || cell.value === 0 || cell.value === "dry"){
 				 $td.html('<span style="display: inline-block; ' + 
 						 'padding-left: 20px;' + 
 						 'width: 20px;' + 
 						 'height: 20px;' +
 				 		'">dry</span>');
 				 
-				 $td.html('<span style="float: right; color: #d85d3c; font-weight: bold"><i style="font-size: 14pt;" class="icon-check-circle"></i> dry </span>');
+				 $td.html('<span style="float: right; color: #65a637; font-weight: bold"><i style="font-size: 14pt;" class="icon-box-checked"></i> dry </span>');
 				 
+			 }
+			 
+			 //Handle last_seen
+			 else if(cell.field === "last_seen" && cell.value !== null && cell.value !== undefined){
+				 
+				 // If the sensor was last_seen "never", then it has not checked in yet
+				 if(cell.value == "never"){
+					 $td.html('<span style="color: #fac51c; font-weight: bold"><i style="font-size: 14pt;" class="icon-question-circle"></i> ' + cell.value + '</span>');
+				 }
+				 
+				 // If the cell has an exclamation mark, then the sensor has checked in too long ago
+			     else if(cell.value.indexOf("!") >= 0){
+					 $td.html('<span style="color: #d85d3c; font-weight: bold"><i style="font-size: 14pt;" class="icon-alert icon-warning"></i> ' + cell.value + '</span>');
+				 }
+				 
+				 // Otherwise, the sensor is good
+				 else{
+					 $td.html('<span style="color: #65a637; font-weight: bold"><i style="font-size: 14pt;" class="icon-box-checked"></i> ' + cell.value + '</span>');
+				 }
 			 }
 			 
 			 //Handle unknown state

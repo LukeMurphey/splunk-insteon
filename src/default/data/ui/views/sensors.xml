@@ -1,4 +1,4 @@
-<form>
+<form script="sensors.js">
   <label>Sensors</label>
   <fieldset submitButton="true" autoRun="true">
   	<input token="device" type="dropdown" searchWhenChanged="true">
@@ -25,7 +25,7 @@
     <input type="time" token="datetime">
       <label></label>
       <default>
-        <earliest>-7d</earliest>
+        <earliest>-7d@d</earliest>
         <latest>now</latest>
       </default>
     </input>
@@ -39,18 +39,18 @@
           <query>
           sourcetype=insteon_plm
           subcategory=8 category=10 modem_command_code=50 all_link=1 `get_command_info`
-          | stats last(command) as command last(_time) as last_seen last(subcategory) as subcategory last(category) as category by from
+          | sort -_time
+          | stats first(command) as command first(_time) as last_seen first(subcategory) as subcategory first(category) as category by from
           | eval address=from
-          | eval wet=if(like(command, "%wet%"),1,0)
+          | eval status=if(like(command, "%wet%"),1,0)
           | inputlookup insteon_devices append=t
           | search subcategory=8 category=10 address="$form.device$"
-          | stats first(wet) as wet first(last_seen) as last_seen last(name) as name last(room) as room by address
-          | fillnull wet value="-1"
-          | eval is_dead=case(now()-last_seen > 90000,1, isnull(last_seen), 1, 1 = 1, 0)
-          | `timesince(last_seen,last_seen)`
-          | fillnull last_seen value="never"
+          | stats first(status) as status first(last_seen) as last_seen_int last(name) as name last(room) as room by address
+          | fillnull status value="-1"
+          | `timesince(last_seen_int,last_seen)`
+          | eval last_seen=case(now()-last_seen_int > 90000,last_seen."!", isnull(last_seen), "never", 1 = 1, last_seen)
           | search room="$form.room$"
-          | fields address wet name room is_dead last_seen
+          | fields address status name room last_seen
 		 </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
