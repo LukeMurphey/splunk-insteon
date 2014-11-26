@@ -14,6 +14,15 @@
 			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
 	</input>
 	
+	<input type="dropdown" token="temperature_type">
+            <label>Temperature Type:</label>
+            <choice value="wind_chill">Wind Chill (Fahrenheit)</choice>
+            <choice value="temperature">Air Temperature (Fahrenheit)</choice>
+            <choice value="wind_chill_c">Wind Chill (Celsius)</choice>
+            <choice value="temperature_c">Air Temperature (Celsius)</choice>
+            <default>wind_chill</default>
+    </input>
+	
     <input type="time" token="datetime">
       <label></label>
       <default>
@@ -26,7 +35,7 @@
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes | append [search sourcetype=weather_info | fields - _raw | fields wind_chill ] | timechart sum(heating_minutes) as heating_minutes avg(wind_chill) as temperature
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes | append [search sourcetype=weather_info | fields - _raw | eval temperature_c = (temperature-32)/1.8 | eval wind_chill_c = (wind_chill-32)/1.8  | eval temperature = $form.temperature_type$ | fields temperature ] | timechart sum(heating_minutes) as heating_minutes avg(temperature) as temperature
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
