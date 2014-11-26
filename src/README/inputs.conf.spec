@@ -6,3 +6,12 @@ plm_host = <value>
 
 plm_port = <value>
 * The port number of the Insteon PLM (usually 9761)
+
+[weather_info://default]
+* Configure an input for obtaining weather information
+
+woeid = <value>
+* A where-on-Earth ID that indicates the location you would like to get weather information for (obtain one from http://woeid.rosselliot.co.nz/)
+
+interval = <value>
+* How often to get weather information (how many seconds in between each call)
