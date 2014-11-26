@@ -35,7 +35,7 @@
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes | append [search sourcetype=weather_info | fields - _raw | eval temperature_c = (temperature-32)/1.8 | eval wind_chill_c = (wind_chill-32)/1.8  | eval temperature = $form.temperature_type$ | fields temperature ] | timechart sum(heating_minutes) as heating_minutes avg(temperature) as temperature
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search (command="*Heat*" OR command="*Cool*") (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | eval hvac_action=if(like(command,"%Heat%"), "heating", "cooling") | transaction hvac_action endswith="cmd1=13" startswith="cmd1=11" | eval cooling_minutes=if(hvac_action="cooling",duration/60,0) | eval heating_minutes=if(hvac_action="heating",duration/60,0) | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes | append [search sourcetype=weather_info | fields - _raw | eval temperature_c = (temperature-32)/1.8 | eval wind_chill_c = (wind_chill-32)/1.8  | eval temperature = $form.temperature_type$ | fields temperature ] | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes avg(temperature) as temperature
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
@@ -43,6 +43,7 @@
         <option name="charting.chart">column</option>
         <option name="charting.chart.nullValueMode">connect</option>
         <option name="charting.chart.overlayFields">temperature</option>
+        <option name="charting.chart.stackMode">stacked</option>
         <option name="charting.axisY2.enabled">1</option>
         <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.fieldColors">
