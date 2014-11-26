@@ -107,12 +107,24 @@ class TCP(Interface):
         try:
             data = self.__s.recv(bufferSize)
         except socket.error, ex:
-            pass
+            
+            if ex.errno == 35: # Resource temporarily unavailable: no data to read yet
+                return '' # We can ignore this exception. This just means no data was available to read yet.
+            
+            elif(self.logger is not None):
+                self.logger.exception("Socket exception raised while attempting to read from the socket")
+            
+            # Raise the exception so that the caller knows something went wrong
+            raise ex
+            
         except Exception, ex:
             if(self.logger is not None):
                 self.logger.exception("Exception raised while attempting to read from the socket")
             else:
-                print "Exception:", type(ex) 
+                print "Exception:", type(ex)
+                
+            # Raise the exception so that the caller knows something went wrong
+            raise ex
             
         return data
     
