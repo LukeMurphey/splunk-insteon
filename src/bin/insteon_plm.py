@@ -171,8 +171,8 @@ class InsteonPLMInput(ModularInput):
         try:
             all_link_dump_interval = int(all_link_dump_interval)
         except:
-            logger.error("all_link_dump_interval is invalid; will default to 86400 (24 hours)")
-            all_link_dump_interval = 86400
+            logger.error("all_link_dump_interval is invalid; will default to disabled")
+            all_link_dump_interval = 0
         
         #logger.debug("Entering the modular input run loop")
         
