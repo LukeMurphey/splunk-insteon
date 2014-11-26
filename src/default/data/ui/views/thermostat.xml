@@ -26,16 +26,18 @@
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes | append [search sourcetype=weather_info | fields - _raw | fields wind_chill ] | timechart sum(heating_minutes) as heating_minutes avg(wind_chill) as temperature
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
         </search>
         <option name="charting.chart">column</option>
-        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.nullValueMode">connect</option>
         <option name="charting.chart.overlayFields">temperature</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.fieldColors">
-  		{"heating_minutes":0xd85d3c,"cooling_minutes":0x6ab7c7,"fan_minutes":0xd85d3c}
+  		{"heating_minutes":0xd85d3c,"cooling_minutes":0x6ab7c7,"fan_minutes":0xd85d3c,"temperature":0x000000}
 		</option>
       </chart>
     </panel>
