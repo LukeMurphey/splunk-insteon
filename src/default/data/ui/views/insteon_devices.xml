@@ -18,7 +18,7 @@
     <input type="time" token="datetime">
       <label></label>
       <default>
-        <earliest>-7d</earliest>
+        <earliest>-24h@h</earliest>
         <latest>now</latest>
       </default>
     </input>
