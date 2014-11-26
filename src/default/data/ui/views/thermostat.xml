@@ -26,7 +26,7 @@
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Call for Heat" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Heat*" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
