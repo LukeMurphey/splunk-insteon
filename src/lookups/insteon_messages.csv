@@ -280,10 +280,10 @@ extended,broadcast,all_link,all_link_group,command,category,subcategory,cmd1,cmd
 0,*,1,2,Smoke/CO Detectors: Carbon Monoxide Detected,10,a,11,*,1
 0,*,1,1,Smoke/CO Detectors: Smoke Detected,10,a,11,*,1
 0,*,1,5,Smoke/CO Detectors: All Clear,10,a,11,*,1
-0,*,1,2,Thermostat: Call for Heat,5,b,11,*,1
-0,*,1,2,Thermostat: End Call for Heat,5,b,13,*,1
-0,*,1,1,Thermostat: Call for Cooling,5,b,11,*,1
-0,*,1,1,Thermostat: End Call for Cooling,5,b,13,*,1
+0,*,1,2,Thermostat: Heating Active,5,b,11,*,1
+0,*,1,2,Thermostat: Heating Inactive,5,b,13,*,1
+0,*,1,1,Thermostat: Cooling Active,5,b,11,*,1
+0,*,1,1,Thermostat: Cooling Inactive,5,b,13,*,1
 0,*,1,3,Thermostat: Humidity High,5,b,11,*,1
 0,*,1,4,Thermostat: Humidity Low,5,b,11,*,1
 0,*,1,3,Thermostat: Humidity Normal,5,b,13,*,1
