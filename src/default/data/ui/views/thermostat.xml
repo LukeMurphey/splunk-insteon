@@ -1,0 +1,43 @@
+<form>
+  <label>Thermostat</label>
+  <fieldset submitButton="true" autoRun="true">
+  	<input token="device" type="dropdown" searchWhenChanged="true">
+			<label>Device:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+			| stats count | eval device="All devices" | eval address="*" | inputlookup append=t insteon_devices | search (category=5) OR device="All devices" | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+	
+  	<input token="room" type="dropdown" searchWhenChanged="true">
+			<label>Room:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
+	</input>
+	
+    <input type="time" token="datetime">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <chart>
+        <search>
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search command="*Call for Heat" (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | transaction endswith="cmd1=13" startswith="cmd1=11" | eval heating_minutes=duration/60 | timechart sum(heating_minutes) as heating_minutes
+          </query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.overlayFields">temperature</option>
+        <option name="charting.fieldColors">
+  		{"heating_minutes":0xd85d3c,"cooling_minutes":0x6ab7c7,"fan_minutes":0xd85d3c}
+		</option>
+      </chart>
+    </panel>
+  </row>
+</form>
