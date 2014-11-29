@@ -783,7 +783,7 @@ class InsteonPLM(HAInterface):
                 
             # add the data field if provided
             if data is not None:
-                params['data'] = data
+                params['data'] = data.encode("hex")
             
             #run the callback if one is defined
             self.__insteonCallback( params )
@@ -792,6 +792,7 @@ class InsteonPLM(HAInterface):
         self.__process_InboundStandardInsteonMessage(responseBytes, noop=True)
             
     def __process_InboundStandardInsteonMessage(self, responseBytes, noop=False):
+        self.logger.debug("Standard message received, length=%r", len(responseBytes))
         (insteonCommand, fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, messageFlags, command1, command2) = struct.unpack('xBBBBBBBBBB', responseBytes)        
         
         foundCommandHash = None            
