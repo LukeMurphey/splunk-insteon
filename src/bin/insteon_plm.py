@@ -123,7 +123,7 @@ class InsteonPLMInput(ModularInput):
                     params[k] = 0
             
             # Output the event
-            self.output_event(params, self.stanza, index=self.index, sourcetype=self.sourcetype, source=self.source)
+            self.output_event(params, stanza=self.stanza, index=self.index, sourcetype=self.sourcetype, source=self.source)
             
             #logger.debug("Processed an Insteon message")
         except:

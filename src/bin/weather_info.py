@@ -111,7 +111,7 @@ class WeatherInfoInput(ModularInput):
         data['condition_code'] = weather_data['channel']['item']['condition']['code']
         
         # Output the event
-        self.output_event(data, stanza=stanza, index=index, sourcetype=sourcetype)
+        self.output_event(data, stanza=stanza, index=index, sourcetype=sourcetype, source=stanza)
         
         # Save the checkpoint noting that the information was retrieved
         self.save_checkpoint_data(checkpoint_dir, stanza, {'last_run' : int(time.time()) })
