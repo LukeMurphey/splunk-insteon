@@ -88,6 +88,7 @@ class InsteonPLMInput(ModularInput):
         self.index = "default"
         self.source = None
         self.stanza = None
+        self.host = None
         
         ModularInput.__init__( self, scheme_args, args )
     
@@ -123,7 +124,7 @@ class InsteonPLMInput(ModularInput):
                     params[k] = 0
             
             # Output the event
-            self.output_event(params, stanza=self.stanza, index=self.index, sourcetype=self.sourcetype, source=self.source)
+            self.output_event(params, stanza=self.stanza, host=self.host, index=self.index, sourcetype=self.sourcetype, source=self.source)
             
             #logger.debug("Processed an Insteon message")
         except:
@@ -162,8 +163,12 @@ class InsteonPLMInput(ModularInput):
         plm_host                = cleaned_params["plm_host"]
         plm_port                = cleaned_params.get("plm_port", 9761)
         
-        sourcetype              = cleaned_params.get("sourcetype", "insteon_plm")
-        index                   = cleaned_params.get("index", "default")
+        self.sourcetype         = cleaned_params.get("sourcetype", "insteon_plm")
+        self.index              = cleaned_params.get("index", "default")
+        self.host               = cleaned_params.get("host", None)
+        self.stanza             = stanza
+        self.source             = stanza
+        
         all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", 0)
         source                  = stanza
         

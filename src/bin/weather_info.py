@@ -92,7 +92,7 @@ class WeatherInfoInput(ModularInput):
                 
         return fields
     
-    def output_weather_info(self, woeid, sourcetype, index, stanza, checkpoint_dir):
+    def output_weather_info(self, woeid, host, sourcetype, index, stanza, checkpoint_dir):
         import json
         
         weather_data = self.get_weather_info(woeid)
@@ -111,7 +111,7 @@ class WeatherInfoInput(ModularInput):
         data['condition_code'] = weather_data['channel']['item']['condition']['code']
         
         # Output the event
-        self.output_event(data, stanza=stanza, index=index, sourcetype=sourcetype, source=stanza)
+        self.output_event(data, stanza=stanza, index=index, sourcetype=sourcetype, source=stanza, host=host)
         
         # Save the checkpoint noting that the information was retrieved
         self.save_checkpoint_data(checkpoint_dir, stanza, {'last_run' : int(time.time()) })
@@ -123,6 +123,7 @@ class WeatherInfoInput(ModularInput):
         woeid                   = cleaned_params.get("woeid", None)
         interval                = cleaned_params.get("interval", 86400/2)
         sourcetype              = cleaned_params.get("sourcetype", "weather_info")
+        host                    = cleaned_params.get("host", None)
         index                   = cleaned_params.get("index", "default")
         stanza                  = stanza
         
@@ -131,7 +132,7 @@ class WeatherInfoInput(ModularInput):
             return
         elif interval is not None and interval > 0 and self.needs_another_run(input_config.checkpoint_dir, stanza, interval):
             try:
-                self.output_weather_info(woeid, sourcetype, index, stanza, input_config.checkpoint_dir)
+                self.output_weather_info(woeid, host, sourcetype, index, stanza, input_config.checkpoint_dir)
             except Exception as e:
                 logger.exception("Exception while attempting to get weather information, woeid=%s", woeid)
             
