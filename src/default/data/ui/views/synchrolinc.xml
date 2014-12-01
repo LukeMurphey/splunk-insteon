@@ -1,0 +1,69 @@
+<form>
+  <label>SynchroLinc</label>
+  <fieldset submitButton="true" autoRun="true">
+  	<input token="device" type="dropdown" searchWhenChanged="true">
+			<label>Device:</label>
+			<default>*</default>
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+			| stats count | eval device="All devices" | eval address="*" | inputlookup append=t insteon_devices | search (category=7 AND subcategory=9) OR device="All devices" | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+    
+    <input type="time" token="datetime">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>		
+	<single>
+		<search>
+			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from endswith="cmd1=13" startswith="cmd1=11" | stats avg(duration) as average_duration | eval average_duration=round(average_duration, 2) | `timediff(average_duration,average_duration)`</query>
+	        <earliest>$datetime.earliest$</earliest>
+	        <latest>$datetime.latest$</latest>
+		</search>
+		<option name="beforeLabel">Average duration: </option>
+		<option name="field">duration</option>
+	</single>
+	<single>
+		<search>
+			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from endswith="cmd1=13" startswith="cmd1=11" | stats sum(all_link) as invocations</query>
+	        <earliest>$datetime.earliest$</earliest>
+	        <latest>$datetime.latest$</latest>
+		</search>
+		<option name="beforeLabel">Invocations:</option>
+		<option name="field">invocations</option>
+	</single>
+	<single>
+		<search>
+			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from endswith="cmd1=13" startswith="cmd1=11" | streamstats range(_time) as duration window=2 | search duration > 0 | stats avg(duration) as average_duration | eval average_duration=round(average_duration, 2) | `timediff(average_duration,average_duration)`</query>
+	        <earliest>$datetime.earliest$</earliest>
+	        <latest>$datetime.latest$</latest>
+		</search>
+		<option name="beforeLabel">Average time between activity:</option>
+		<option name="field">average_duration</option>
+	</single>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <search>
+          <query>sourcetype=insteon_plm (category=7 AND subcategory=9) | search (to="$form.device$" OR from="$form.device$") all_link=1 all_link_group=0 | transaction from endswith="cmd1=13" startswith="cmd1=11" | timechart avg(duration) sum(all_link) as count
+          </query>
+          <earliest>$datetime.earliest$</earliest>
+          <latest>$datetime.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.nullValueMode">connect</option>
+        <option name="charting.chart.overlayFields">count</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.axisY2.enabled">1</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.fieldColors">
+  		{"avg(duration)":0x6ab7c7,"count":0x000000}
+		</option>
+      </chart>
+    </panel>
+  </row>
+</form>

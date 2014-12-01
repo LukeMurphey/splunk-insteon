@@ -1,7 +1,8 @@
 <nav search_view="search" color="#29abe4">
   <view name="recent_events" default="true" />
-  <view name="sensors" />
   <view name="insteon_devices" />
+  <view name="synchrolinc" />
+  <view name="sensors" />
   <view name="thermostat" />
   <collection label="Health">
  	 <view name="messages_missing_metadata" />
