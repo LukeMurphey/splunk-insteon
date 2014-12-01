@@ -14,7 +14,7 @@
 			<populatingSearch fieldForLabel="room_name" fieldForValue="room"> | stats count | eval room="*" | eval room_name="All rooms" | inputlookup append=t insteon_devices | eval room_name=if(isnull(room_name),room,room_name) | stats last(room_name) as room_name by room</populatingSearch>
 	</input>
 	
-	<input type="dropdown" token="temperature_type">
+	<input type="dropdown" token="temperature_type" searchWhenChanged="true">
             <label>Temperature Type:</label>
             <choice value="wind_chill">Wind Chill (Fahrenheit)</choice>
             <choice value="temperature">Air Temperature (Fahrenheit)</choice>
@@ -22,6 +22,12 @@
             <choice value="temperature_c">Air Temperature (Celsius)</choice>
             <default>wind_chill</default>
     </input>
+    
+  	<input token="location" type="dropdown" searchWhenChanged="true">
+			<label>Location:</label>
+			<populatingSearch fieldForLabel="location" fieldForValue="source"><![CDATA[search sourcetype=weather_info | stats count(source) by source | rex field=source "://(?<location>.*)"]]></populatingSearch>
+	</input>
+    
 	
     <input type="time" token="datetime">
       <label></label>
@@ -35,7 +41,7 @@
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm category=5 `get_command_info` | search (command="*Heat*" OR command="*Cool*") (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | eval hvac_action=if(like(command,"%Heat%"), "heating", "cooling") | transaction hvac_action endswith="cmd1=13" startswith="cmd1=11" | eval cooling_minutes=if(hvac_action="cooling",duration/60,0) | eval heating_minutes=if(hvac_action="heating",duration/60,0) | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes | append [search sourcetype=weather_info | fields - _raw | eval temperature_c = (temperature-32)/1.8 | eval wind_chill_c = (wind_chill-32)/1.8  | eval temperature = $form.temperature_type$ | fields temperature ] | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes avg(temperature) as temperature
+          <query>sourcetype=insteon_plm category=5 `get_command_info` | search (command="*Heat*" OR command="*Cool*") (to="$form.device$" OR from="$form.device$") (from_room="$form.room$" OR to_room="$form.room$") | eval hvac_action=if(like(command,"%Heat%"), "heating", "cooling") | transaction hvac_action endswith="cmd1=13" startswith="cmd1=11" | eval cooling_minutes=if(hvac_action="cooling",duration/60,0) | eval heating_minutes=if(hvac_action="heating",duration/60,0) | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes | append [search sourcetype=weather_info source=$form.location$ | fields - _raw | eval temperature_c = (temperature-32)/1.8 | eval wind_chill_c = (wind_chill-32)/1.8  | eval temperature = $form.temperature_type$ | fields temperature ] | timechart sum(heating_minutes) as heating_minutes sum(cooling_minutes) as cooling_minutes avg(temperature) as temperature
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
