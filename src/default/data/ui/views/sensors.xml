@@ -63,4 +63,38 @@
       </table>
     </panel>
   </row>
+  
+  <row>
+    <panel>
+      <table id="smoke_sensor_table">
+        <title>Smoke Sensors</title>
+        <search>
+          <query>
+          sourcetype=insteon_plm
+          subcategory=a category=10 modem_command_code=50 all_link=1 `get_command_info`
+          | sort -_time
+          | stats first(command) as command first(_time) as last_seen first(subcategory) as subcategory first(category) as category by from
+          | eval address=from
+          | eval status=if(like(command, "%All Clear%"),0,1)
+          | inputlookup insteon_devices append=t
+          | search subcategory=a category=10 address="$form.device$"
+          | stats first(status) as status first(last_seen) as last_seen_int last(name) as name last(room) as room by address
+          | fillnull status value="-1"
+          | `timesince(last_seen_int,last_seen)`
+          | eval last_seen=case(now()-last_seen_int > (86400*31),last_seen."!", isnull(last_seen), "never", 1 = 1, last_seen)
+          | search room="$form.room$"
+          | fields address status name room last_seen
+		 </query>
+          <earliest>-180d@d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">20</option>
+      </table>
+    </panel>
+  </row>
+  
 </form>
