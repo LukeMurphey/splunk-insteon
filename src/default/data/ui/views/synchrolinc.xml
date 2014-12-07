@@ -19,37 +19,49 @@
   <row>		
 	<single>
 		<search>
-			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | stats avg(duration) as average_duration | eval average_duration=round(average_duration, 2) | `timediff(average_duration,average_duration)`</query>
+			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | stats avg(duration) as duration | eval duration=round(duration, 2) | `timediff(duration,duration)`</query>
 	        <earliest>$datetime.earliest$</earliest>
 	        <latest>$datetime.latest$</latest>
 		</search>
-		<option name="beforeLabel">Average duration: </option>
+		<option name="underLabel">Average duration</option>
 		<option name="field">duration</option>
 	</single>
+    <!--
 	<single>
 		<search>
 			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | stats sum(all_link) as invocations</query>
 	        <earliest>$datetime.earliest$</earliest>
 	        <latest>$datetime.latest$</latest>
 		</search>
-		<option name="beforeLabel">Invocations:</option>
+		<option name="underLabel">Invocations</option>
 		<option name="field">invocations</option>
 	</single>
+    -->
 	<single>
 		<search>
 			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | streamstats range(_time) as duration window=2 | search duration > 0 | stats avg(duration) as average_duration | eval average_duration=round(average_duration, 2) | `timediff(average_duration,average_duration)`</query>
 	        <earliest>$datetime.earliest$</earliest>
 	        <latest>$datetime.latest$</latest>
 		</search>
-		<option name="beforeLabel">Average time between activity:</option>
+		<option name="underLabel">Average time between activity</option>
 		<option name="field">average_duration</option>
+	</single>
+	<single>
+		<search>
+			<query>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | sort -_time | head 1 | eval active=if(cmd1=11, 1, 0) | stats last(active) as active | rangemap field=active low=1-100 severe=0-0 default=severe | eval active=if(active=1,"active", "inactive")</query>
+	        <earliest>$datetime.earliest$</earliest>
+	        <latest>$datetime.latest$</latest>
+		</search>
+        <option name="underLabel">Current State</option>
+		<option name="field">active</option>
+        <option name="classField">range</option>
 	</single>
   </row>
   <row>
     <panel>
       <chart>
         <search>
-          <query>sourcetype=insteon_plm (category=7 AND subcategory=9) (cmd1=11 OR cmd1=13) (to="$form.device$" OR from="$form.device$") all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | timechart avg(duration) sum(all_link) as count
+          <query>sourcetype=insteon_plm (category=7 AND subcategory=9) (cmd1=11 OR cmd1=13) (to="$form.device$" OR from="$form.device$") all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11" | timechart sum(duration) sum(all_link) as count
           </query>
           <earliest>$datetime.earliest$</earliest>
           <latest>$datetime.latest$</latest>
@@ -61,7 +73,7 @@
         <option name="charting.axisY2.enabled">1</option>
         <option name="charting.axisY2.scale">inherit</option>
         <option name="charting.fieldColors">
-  		{"avg(duration)":0x6ab7c7,"count":0x000000}
+  		{"sum(duration)":0x6ab7c7,"count":0x000000}
 		</option>
       </chart>
     </panel>
