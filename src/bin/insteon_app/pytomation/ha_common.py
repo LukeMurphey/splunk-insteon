@@ -33,6 +33,7 @@ import threading
 import traceback
 import socket
 import binascii
+import keepalive
 #import serial
 
 class Lookup(dict):
@@ -91,6 +92,9 @@ class TCP(Interface):
         super(TCP, self).__init__()        
         self.__s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         print"connect %s:%s" % (host, port)
+        
+        # Setup a keep-alive to detect dead connections
+        keepalive.set_keepalive(self.__s)
         self.__s.connect((host, port))
         self.__s.setblocking(False)
         
