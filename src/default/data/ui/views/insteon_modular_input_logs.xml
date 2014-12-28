@@ -1,7 +1,7 @@
 <form>
   <label>Modular Input Logs</label>
   <fieldset submitButton="true" autoRun="true">
-    <input type="time" token="timefield">
+    <input type="time" token="datetime">
       <label></label>
       <default>
         <earliest>-24h@h</earliest>
