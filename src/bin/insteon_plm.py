@@ -13,6 +13,8 @@ import re
 from insteon_app.pytomation.pyinsteon import *
 from insteon_app.pytomation.ha_common import *
 
+import select
+
 def setup_logger():
     """
     Setup a logger.
@@ -181,6 +183,14 @@ class InsteonPLMInput(ModularInput):
         
         #logger.debug("Entering the modular input run loop")
         
+        # Determine if the connection has failed
+        try:
+            if self.plm is not None and self.plm_connection_restart == False:
+                ready_to_read, ready_to_write, in_error = select.select([self.interface.__s,], [self.interface.__s,], [], 5)
+        except select.error:          
+            logger.exception("PLM connection down, plm_host=%s, plm_port=%r", plm_host, plm_port)
+            self.plm_connection_restart = True
+            
         try:
             # Run a dump of the all-link database if needed 
             if self.plm is not None and not self.running_all_link_dump and all_link_dump_interval > 0 and self.needs_another_run(input_config.checkpoint_dir, stanza, all_link_dump_interval):
@@ -191,7 +201,7 @@ class InsteonPLMInput(ModularInput):
                 logger.info("Restarting the PLM connection")
                 self.do_shutdown()
                 self.plm = None
-            
+                
             # Start the connection to the PLM to begin intercepting messages
             if self.plm is None:
                 
@@ -209,13 +219,13 @@ class InsteonPLMInput(ModularInput):
                 self.plm.start()
                 
                 logger.info("Established a connection to the PLM, plm_host=%s, plm_port=%r", plm_host, plm_port)
-                
+                  
         except socket.error as e:
             logger.warning("Network error while attempting to start a PLM connection, plm_host=%s, plm_port=%r, message=%s", plm_host, plm_port, str(e))
             
         except Exception as e:
             logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
-            
+        
 if __name__ == '__main__':
     
     try:
