@@ -243,6 +243,8 @@ class InsteonPLM(HAInterface):
         
         self.__all_record_request_nack = False
         self.__run_loop_error_callback = None
+        
+        self.__last_activity_time = time.time()
     
     def shutdown(self):
         if self.__interfaceRunningEvent.isSet():
@@ -250,6 +252,9 @@ class InsteonPLM(HAInterface):
 
             #wait 2 seconds for the interface to shut down
             self.__interfaceRunningEvent.wait(2000)
+            
+    def getLastActivityTime(self):
+        return self.__last_activity_time
             
     def run(self):
         
@@ -279,13 +284,17 @@ class InsteonPLM(HAInterface):
                     del self.__outboundCommandDetails[commandHash]
                     
                     self.__lastSendTime = time.time()
-                       
+                
                 self.__commandLock.release()
                 
                 #check to see if there is anything we need to read            
                 firstByte = self.__interface.read(1)
                 
                 if len(firstByte) == 1:
+                    
+                    #note that activity took place
+                    self.__last_activity_time = time.time()
+                    
                     #got at least one byte.  Check to see what kind of byte it is (helps us sort out how many bytes we need to read now)
                     
                     if firstByte[0] == '\x02':
