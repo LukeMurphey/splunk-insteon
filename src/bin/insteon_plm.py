@@ -1,6 +1,6 @@
 
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
-from insteon_app.modular_input import Field, IntegerField, FieldValidationException, ModularInput
+from insteon_app.modular_input import Field, IntegerField, DurationField, FieldValidationException, ModularInput
 
 import logging
 from logging import handlers
@@ -78,6 +78,7 @@ class InsteonPLMInput(ModularInput):
         args = [
                 Field("plm_host", "PLM Host Address", "The IP address or domain name of the PLM (such as an Insteon Hub)", empty_allowed=False),
                 PortField("plm_port", "PLM Port", "The port on the PLM to connect to (usually is 9761)", empty_allowed=False),
+                DurationField("no_activity_restart_interval", "Restart Interval", "How long to wait to restart the PLM connection if no modem activity is observed", empty_allowed=True, required_on_create=False, required_on_edit=False)
                 ]
           
         self.plm = None
@@ -162,17 +163,18 @@ class InsteonPLMInput(ModularInput):
     def run(self, stanza, cleaned_params, input_config):
         
         # Make the parameters
-        plm_host                = cleaned_params["plm_host"]
-        plm_port                = cleaned_params.get("plm_port", 9761)
+        plm_host                     = cleaned_params["plm_host"]
+        plm_port                     = cleaned_params.get("plm_port", 9761)
+        no_activity_restart_interval = cleaned_params.get("no_activity_restart_interval", 0)
         
-        self.sourcetype         = cleaned_params.get("sourcetype", "insteon_plm")
-        self.index              = cleaned_params.get("index", "default")
-        self.host               = cleaned_params.get("host", None)
-        self.stanza             = stanza
-        self.source             = stanza
+        self.sourcetype              = cleaned_params.get("sourcetype", "insteon_plm")
+        self.index                   = cleaned_params.get("index", "default")
+        self.host                    = cleaned_params.get("host", None)
+        self.stanza                  = stanza
+        self.source                  = stanza
         
-        all_link_dump_interval  = cleaned_params.get("all_link_dump_interval", 0)
-        source                  = stanza
+        all_link_dump_interval       = cleaned_params.get("all_link_dump_interval", 0)
+        source                       = stanza
         
         # Make sure that all-link dump frequency is valid
         try:
@@ -185,12 +187,22 @@ class InsteonPLMInput(ModularInput):
         
         # Determine if the connection has failed
         try:
-            if self.plm is not None and self.plm_connection_restart == False:
+            if self.plm is not None and self.interface is not None and hasattr(self.interface, '__s') and self.interface.__s is not None and self.plm_connection_restart == False:
                 ready_to_read, ready_to_write, in_error = select.select([self.interface.__s,], [self.interface.__s,], [], 5)
         except select.error:          
             logger.exception("PLM connection down, plm_host=%s, plm_port=%r", plm_host, plm_port)
             self.plm_connection_restart = True
+        except:
+            logger.exception("Error when testing connection for problems, plm_host=%s, plm_port=%r", plm_host, plm_port)
+        
+        # Determine if the PLM connection should be restarted due to no activity
+        if no_activity_restart_interval > 0 and self.plm is not None and time.time() > (no_activity_restart_interval + self.plm.getLastActivityTime()):
+            logger.info("No activity observed recently, PLM connection will be restarted, no_activity_restart_interval=%r", no_activity_restart_interval)
+            self.plm_connection_restart = True
             
+        #if self.plm is not None:
+        #    logger.debug("Activity noted=%r, time=%r, expires=%r", self.plm.getLastActivityTime(), time.time(), (no_activity_restart_interval + self.plm.getLastActivityTime()))
+        
         try:
             # Run a dump of the all-link database if needed 
             if self.plm is not None and not self.running_all_link_dump and all_link_dump_interval > 0 and self.needs_another_run(input_config.checkpoint_dir, stanza, all_link_dump_interval):
@@ -226,6 +238,8 @@ class InsteonPLMInput(ModularInput):
         except Exception as e:
             logger.exception("Exception while attempting to start a PLM connection, plm_host=%s, plm_port=%r", plm_host, plm_port)
         
+        except:
+            logger.exception("Something terrible happened")
 if __name__ == '__main__':
     
     try:
