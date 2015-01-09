@@ -929,7 +929,7 @@ class InsteonPLM(HAInterface):
             insteonCommandCode = 'ED' + insteonCommandCode
 
         #run the callback if one is defined
-        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommand, "Extended Message", isBroadcast, isDirect, isAck, isNak, isAllLink, False, data=data)                 
+        self.__executeCallback(fromIdHigh, fromIdMid, fromIdLow, toIdHigh, toIdMid, toIdLow, command1, command2, insteonCommand, "Extended Message", isBroadcast, isDirect, isAck, isNak, isAllLink, True, data=data)                 
         
     def __process_InboundX10Message(self, responseBytes):        
         "Receive Handler for X10 Data"
