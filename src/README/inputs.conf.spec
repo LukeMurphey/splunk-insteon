@@ -7,6 +7,9 @@ plm_host = <value>
 plm_port = <value>
 * The port number of the Insteon PLM (usually 9761)
 
+no_activity_restart_interval = <value>
+* How long to wait to restart the PLM connection if no modem activity is observed
+
 [weather_info://default]
 * Configure an input for obtaining weather information
 
