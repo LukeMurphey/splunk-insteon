@@ -19,6 +19,7 @@
     
   	<input token="location" type="dropdown" searchWhenChanged="true">
 			<label>Location:</label>
+			<selectFirstChoice>true</selectFirstChoice>
 			<populatingSearch fieldForLabel="location" fieldForValue="source"><![CDATA[search sourcetype=weather_info | stats count(source) by source | rex field=source "://(?<location>.*)"]]></populatingSearch>
 	</input>
     
