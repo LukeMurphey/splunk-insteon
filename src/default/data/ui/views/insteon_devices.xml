@@ -41,6 +41,7 @@
           <query>
           sourcetype=insteon_plm from_room=$form.room$
           | eval address=from
+          | lookup insteon_devices address OUTPUT category,subcategory
           | chart last(category) as category last(subcategory) as subcategory last(from_device_name) as name last(from_room) as room sparkline count as event_count latest(_time) as last_seen by address
           | lookup insteon_device_types category subcategory OUTPUT category_name description as device_description
           | fields address name room category_name device_description sparkline event_count last_seen
