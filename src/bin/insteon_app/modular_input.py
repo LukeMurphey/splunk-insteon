@@ -966,7 +966,9 @@ class ModularInput():
         if cur_time is None:
             cur_time = time.time()
         
-        if (last_run + interval) < cur_time:
+        if last_run is None:
+            return True
+        elif (last_run + interval) < cur_time:
             return True
         else:
             return False
@@ -984,6 +986,7 @@ class ModularInput():
         checkpoint_dict = cls.get_checkpoint_data(checkpoint_dir, stanza)
         
         if checkpoint_dict is None or 'last_run' not in checkpoint_dict:
+            logger.info('Last run time could not be loaded for stanza=%s, checkpoint_dir="$r"', stanza, checkpoint_dir)
             return None
         else:
             return checkpoint_dict['last_run']
