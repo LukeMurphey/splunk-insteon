@@ -1,0 +1,43 @@
+<form>
+  <label>I/O Linc</label>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    
+    <input token="device" type="dropdown" searchWhenChanged="true">
+			<label>Device:</label>
+			<selectFirstChoice>true</selectFirstChoice>
+			<populatingSearch fieldForLabel="device" fieldForValue="address">
+			| stats count | inputlookup append=t insteon_devices | search (subcategory=0 category=7) | lookup insteon_device_types category subcategory OUTPUT category_name description | eval device=case(address=="*", device, NOT isnull(name), name, NOT isnull(address), address, NOT isnull(device), device) | stats count(device) by device, address</populatingSearch>
+	</input>
+    
+	<input type="dropdown" token="transaction_params" searchWhenChanged="true">
+            <label>Duration type:</label>
+            <choice value="endswith=&quot;cmd1=13&quot; startswith=&quot;cmd1=11&quot;">Sensor open duration</choice>
+            <choice value="endswith=&quot;cmd1=11&quot; startswith=&quot;cmd1=13&quot;">Sensor closed duration</choice>
+            <default>endswith=&quot;cmd1=13&quot; startswith=&quot;cmd1=11&quot;</default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Sensor Status Changes</title>
+      <table>
+        <search>
+          <query>sourcetype=insteon_plm (to=$device$ OR from=$device$) all_link=1 all_link_group=1 (cmd1=13 OR cmd1=11) | transaction from maxopenevents=2 $transaction_params$ | table _time duration</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">heatmap</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

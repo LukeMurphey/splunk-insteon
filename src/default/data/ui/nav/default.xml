@@ -2,6 +2,7 @@
   <view name="recent_events" default="true" />
   <view name="insteon_devices" />
   <view name="synchrolinc" />
+  <view name="iolinc" />
   <view name="sensors" />
   <view name="thermostat" />
   <collection label="Health">
