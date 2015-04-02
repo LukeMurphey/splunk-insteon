@@ -44,7 +44,8 @@ class WOEIDLookup(controllers.BaseController):
         Get potential weather IDs for a given location
         """
         
-        url = 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.places%20where%20text%3D%22Wadsworth%22&format=json'
+        #url = 'http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20geo.places%20where%20text%3D%22Wadsworth%22&format=json'
+        url = 'http://query.yahooapis.com/v1/public/yql'
         
         params = urllib.urlencode({
             'q': "select * from geo.places where text='" + location + "'",

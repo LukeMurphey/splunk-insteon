@@ -1,0 +1,228 @@
+<%page args="element" />
+<div class="lookup_woeid_panel_org" style="display:none">
+	Matching where-on-Earth IDs:
+	<table></table>
+</div>
+<style>
+#lookup_woeid_dialog_content{
+	padding: 16px;
+	min-height: 150px;
+	min-width: 400px;
+}
+
+#lookup_woeid_dialog_content td{
+	padding: 3px;
+}
+
+#lookup_woeid_dialog_content table.matches{
+	width: 95%;
+}
+
+#lookup_woeid_dialog_content table.matches tbody tr:nth-of-type(2n)
+{
+	background:#EEE;
+}
+
+#lookup_woeid_dialog_content .table_scroll{
+	max-height: 200px;
+	overflow-y: scroll;
+	border: 1px solid #888;
+}
+
+#lookup_woeid_dialog_content ul{
+	margin-left: 24px;
+}
+
+#lookup_woeid_dialog_content .error_message{
+	color: #C42323;
+	font-weight: bold;
+}
+
+#location_search{
+	width: 50%;
+}
+
+#do_search{
+	margin-top: 16px;
+}
+
+#lookup_woeid_panel{
+	margin-top: 16px;
+}
+
+.location_select{
+	margin-bottom: 8px;
+}
+
+</style>
+
+<label><div></div></label>
+<div style="padding-bottom: 12px;">
+	<a id="get_woeids" href="#">Search for a where-on-Earth ID</a>
+</div>
+<script type="text/javascript">
+	
+	function getLocationEntryDescription(location_entry){
+		
+		var description = "";
+		
+		if(location_entry.content){
+			description += location_entry.content;
+		}
+		
+		if(location_entry.type == "County"){
+			description += " " + location_entry.type;
+		}
+		
+		return description;
+	}
+	
+	function renderPlace(place){
+
+		html = '<tr>';
+		
+		// Make the location description
+		locationDescription = [];
+		
+		if( place.admin3 ){
+			locationDescription.push(getLocationEntryDescription(place.admin3));
+		}
+		
+		if( place.admin2 ){
+			locationDescription.push(getLocationEntryDescription(place.admin2));
+		}
+		
+		if( place.admin1 ){
+			locationDescription.push(getLocationEntryDescription(place.admin1));
+		}
+		
+		html += '<td><a title="' + locationDescription.join(", ") + '" class="woeid-entry" data-woeid="' + place.woeid + '" href="#">' + place.name + '</a></td>';
+		
+		if( place.timezone && place.timezone.content ){
+			html += '<td>' + place.timezone.content + '</td>';
+		}
+		else{
+			html += '<td>NA</td>';
+		}
+		
+		html += '<td><a target="_blank" href="https://www.google.com/maps/search/' + place.centroid.latitude + '+' + place.centroid.longitude + '">See on map</a></td>';
+		
+		html += '</tr>';
+		
+		return html;
+	}
+	
+	function showErrorMessage(message){
+		$("#lookup_woeid_panel").html('<span class="error_message">' + message + '</div>');
+	}
+	
+	function renderWoeids(woeids){
+		
+		// Stop if no results were found
+		if(!woeids.query.results){
+			return '<span class="error_message">No results found</div>';
+		}
+		
+		var html = '<div class="location_select">Select a location:</div>';
+		
+		html += '<table>';
+		
+		html += '<thead><tr> \
+				<th>Name</th> \
+				<th>Timezone</th> \
+				<th></th> \
+				</tr></thead>';
+		
+		var location = null;
+		var locationDescription = null;
+		
+		if(woeids.query.results.place.length){
+			for(var c=0; c < woeids.query.results.place.length; c++){
+				html += renderPlace(woeids.query.results.place[c]);
+			}
+		}
+		else{
+			html += renderPlace(woeids.query.results.place);
+		}
+		
+		html += '</table>';
+		
+		return html;
+		
+	}
+	
+	function woeidClicked(e, popup){
+		var woeid = $(e.target).data("woeid");
+		$("#woeid_id").val(woeid);
+		popup.destroyPopup();
+		
+	}
+	
+	function validateInput(){
+		
+		var location_text = $('#location_search').val();
+		
+		if( location_text === null || location_text.length === 0 ){
+			showErrorMessage("Please provide a location to search for");
+			return false;
+		}
+		
+		return true;
+	}
+	
+	function getWoeids(popup){
+		
+		if( !validateInput() ){
+			return;
+		}
+	
+		$.ajax(
+				{
+					url:  Splunk.util.make_url("/custom/insteon/woeid_lookup/getPotentialWOEIDs?location=" + encodeURIComponent($("#location_search").val())),
+					type: 'GET',
+					success: function(result, textStatus, jqXHR){
+						
+						if( result.hasOwnProperty("success") && result.success == false ){
+							$("#lookup_woeid_panel").html('<span class="error_message">Could not be get the weather IDs:</span><div>' + result.messages[0].message + "</div>");
+							return;
+						}
+						
+						$("#lookup_woeid_panel").html(renderWoeids(result));
+						
+						// Wire-up the click handlers
+						$('.woeid-entry ').click(function(e){
+							return woeidClicked(e, popup);
+						});
+					},
+					error: function(jqXHR,textStatus,errorThrown) {
+						$("#lookup_woeid_panel").html("WOEIDs could not be obtained");
+					}
+				});
+		
+		
+	}
+	
+	$(document).ready(
+			function(){
+				
+				$('#get_woeids').click(
+						function() {
+							popup = new  Splunk.Popup('<div id="lookup_woeid_dialog_content"> \
+									<div id="validation_errors"></div> \
+									<div>Enter a location before to search for a where-on-Earth ID.</div> \
+									<input placeholder="Enter a zip code, city, etc." id="location_search" /> \
+									<button type="submit" class="splButton-primary" id="do_search"><span>Search</span></button> \
+									<div id="lookup_woeid_panel"></div> \
+									</div>',
+								    {
+								            title : "Where-on-Earth ID Lookup",
+								            pclass : "woeid_dialog",
+								            cloneFlag : false
+								    });
+							
+							$('#do_search ').click(function(){ getWoeids(popup); } );
+						}
+				);
+			}
+	);
+</script>
