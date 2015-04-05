@@ -1,0 +1,30 @@
+require.config({
+    paths: {
+    	info_message_view: '../app/insteon/js/views/InfoMessageView'
+    }
+});
+
+require(['jquery','underscore','splunkjs/mvc', 'info_message_view', 'splunkjs/mvc/searchmanager', 'splunkjs/mvc/utils', 'splunkjs/mvc/simplexml/ready!'],
+	function($, _, mvc, InfoMessageView, SearchManager, utils){
+	
+	    // Make the search that will determine if weather inputs exist
+	    var hasWeatherInputSearch = new SearchManager({
+	        "id": "weather-inputs-search",
+	        "earliest_time": "-24h@h",
+	        "latest_time": "now",
+	        "search":'| rest /services/data/inputs/weather_info | stats count',
+	        "cancelOnUnload": true,
+	        "autostart": false,
+	        "app": utils.getCurrentApp(),
+	        "auto_cancel": 90,
+	        "preview": false
+	    }, {tokens: false});
+	
+	    var infoMessageView = new InfoMessageView({
+	    	search_manager: hasWeatherInputSearch,
+	    	message: 'No weather inputs exist yet; create one to compare weather data to. <a target="_blank" href="../../manager/insteon/adddata/selectsource?input_type=weather_info&modinput=1&input_mode=1">Create a weather input now.</a>',
+	    	eval_function: function(searchResults){ return searchResults.rows[0][0] === "0" }
+	    });
+	    
+	}
+);

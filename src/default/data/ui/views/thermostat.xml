@@ -1,4 +1,4 @@
-<form>
+<form script="thermostat.js">
   <label>Thermostat</label>
   <fieldset submitButton="true" autoRun="true">
   	<input token="device" type="dropdown" searchWhenChanged="true">
