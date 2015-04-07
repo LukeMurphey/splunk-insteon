@@ -1,6 +1,6 @@
 
 from splunk.appserver.mrsparkle.lib.util import make_splunkhome_path
-from insteon_app.modular_input import Field, IntegerField, FieldValidationException, ModularInput
+from insteon_app.modular_input import Field, DurationField, FieldValidationException, ModularInput
 
 import logging
 from logging import handlers
@@ -61,7 +61,7 @@ class WeatherInfoInput(ModularInput):
         
         args = [
                 Field("woeid", "Where-on-Earth ID", "The WOEID code to get the information for (see http://woeid.rosselliot.co.nz/)", empty_allowed=False),
-                IntegerField("interval", "Interval", "How often to wait between each call to get weather information (in seconds)", empty_allowed=False)
+                DurationField("interval", "Interval", "How often to wait between each call to get weather information (in seconds)", empty_allowed=False)
                 ]
         
         # These are values that are persisted so that the modular input callback has the data to output the event correctly
