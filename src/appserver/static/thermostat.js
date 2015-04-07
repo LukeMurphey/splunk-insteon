@@ -26,5 +26,25 @@ require(['jquery','underscore','splunkjs/mvc', 'info_message_view', 'splunkjs/mv
 	    	eval_function: function(searchResults){ return searchResults.rows[0][0] === "0" }
 	    });
 	    
+	    // Update the weather info token such that a default value gets set
+	    var submittedTokens = mvc.Components.get('submitted');
+	    
+	    var setDefaultWeatherToken = function(){
+	    	if(submittedTokens.has('location')) {
+	    		submittedTokens.set('_location', submittedTokens.get('location'));
+	    	}
+	    	else{
+	    		submittedTokens.set('_location','weather_info://NoWeatherInfo');
+	    	}
+	    }
+	    
+        setDefaultWeatherToken();
+	    
+	    // When the location token changes...
+	    submittedTokens.on('change:location', setDefaultWeatherToken);
+	    
+	    var submit = mvc.Components.get('submit');
+        submit.on("submit", setDefaultWeatherToken);
+	    
 	}
 );
