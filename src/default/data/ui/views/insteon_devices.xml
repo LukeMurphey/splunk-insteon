@@ -25,15 +25,6 @@
   </fieldset>
   
   <row>
-    <html>
-      <h1>Devices</h1>
-        <p>
-        Below is the list of devices currently recognized by this app.
-        </p>
-    </html>
-  </row>
-  
-  <row>
     <panel>
       <table>
         <title>Devices</title>
