@@ -18,6 +18,10 @@ This app exposes a new input type that can be configured in the Splunk Manager. 
 Getting Support
 ================================================
 
+Go to the following website if you need support:
+
+     http://answers.splunk.com/answers/app/2694
+
 You can access the source-code and get technical details about the app at:
 
      https://github.com/LukeMurphey/splunk-insteon
@@ -32,4 +36,7 @@ Change History
 | Version |  Changes                                                                                                         |
 +---------+------------------------------------------------------------------------------------------------------------------+
 | 0.5     | Initial release                                                                                                  |
+|---------|------------------------------------------------------------------------------------------------------------------|
+| 0.6     | Added link to Splunk answers in README                                                                           |
+|         | Fixed search "Leak Sensor Failed to Check In"                                                                    |
 +---------+------------------------------------------------------------------------------------------------------------------+
