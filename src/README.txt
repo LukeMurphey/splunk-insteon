@@ -10,7 +10,7 @@ This app provides a mechanism for getting Insteon data into Splunk and reporting
 Configuring Splunk
 ================================================
 
-This app exposes a new input type that can be configured in the Splunk Manager. To configure it, create a new input in the Manager under Data inputs È Insteon PLM.
+This app exposes a new input type that can be configured in the Splunk Manager. To configure it, create a new input in the Manager under Data inputs ï¿½ Insteon PLM.
 
 
 
@@ -41,4 +41,6 @@ Change History
 |         | Fixed search "Leak Sensor Failed to Check In"                                                                    |
 |---------|------------------------------------------------------------------------------------------------------------------|
 | 0.7     | Fixing the issue where the source type could not be set                                                          |
+|---------|------------------------------------------------------------------------------------------------------------------|
+| 0.8     | Fixing Synchrolinc dashbaord that sometimes returned no data                                                     |
 +---------+------------------------------------------------------------------------------------------------------------------+
