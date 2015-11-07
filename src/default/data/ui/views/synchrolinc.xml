@@ -19,7 +19,7 @@
   </fieldset>
   
   <!-- Base search -->
-  <searchTemplate>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11"</searchTemplate>
+  <searchTemplate>sourcetype=insteon_plm (to="$form.device$" OR from="$form.device$") (category=7 AND subcategory=9) (cmd1=11 OR cmd1=13) all_link=1 all_link_group=0 | transaction from maxopenevents=2 endswith="cmd1=13" startswith="cmd1=11"</searchTemplate>
   
   <row>		
 	<single>
