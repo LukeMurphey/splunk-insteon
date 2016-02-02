@@ -43,4 +43,7 @@ Change History
 | 0.7     | Fixing the issue where the source type could not be set                                                          |
 |---------|------------------------------------------------------------------------------------------------------------------|
 | 0.8     | Fixing Synchrolinc dashboard that sometimes returned no data                                                     |
+|---------|------------------------------------------------------------------------------------------------------------------|
+| 0.9     | Added macro for parsing thermostat data                                                                          |
+|         | Added alerts for low and high temperatures                                                                       |
 +---------+------------------------------------------------------------------------------------------------------------------+
